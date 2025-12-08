@@ -1,0 +1,6 @@
+# Instala o gerenciador de Rotas do React
+npm install react-router-dom
+
+# Instala o pacote de componentes do React-Bootstrap
+npm install react-bootstrap bootstrap
+
