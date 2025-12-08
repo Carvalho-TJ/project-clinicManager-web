@@ -1,7 +1,7 @@
 import React from 'react';
 import { Outlet } from 'react-router-dom';
 import Header from './Header'; 
-import Footer from './Footer'; // Novo Import
+import Footer from './Footer';
 
 const PublicLayout = () => {
   return (
@@ -11,7 +11,7 @@ const PublicLayout = () => {
       <main style={{ flexGrow: 1 }}>
         <Outlet /> 
       </main>
-      <Footer /> {/* Footer no final do layout */}
+      <Footer />
     </div>
   );
 };

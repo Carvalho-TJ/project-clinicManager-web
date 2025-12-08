@@ -11,7 +11,8 @@ import ProfessionalAgenda from './pages/Professional/ProfessionalAgenda';
 import PatientDashboard from './pages/Patient/PatientDashboard';
 import PublicLayout from './components/Layout/PublicLayout';
 import HomePage from './pages/HomePage/HomePage';
-
+import SobrePage from './pages/SobrePage/SobrePage'
+//import AgendarPage from './pages/AgendarPage/AgendarPage'
 
 function App() {
   return (
@@ -20,7 +21,8 @@ function App() {
         {/* Rotas Públicas (Sem login necessário) */}
         <Route element={<PublicLayout />}>
              <Route path="/" element={<HomePage />} />
-             <Route path="/sobre-nos" element={<h1>Sobre Nós</h1>} />
+             <Route path="/sobre-nos" element={<SobrePage />} />
+             {/*<Route path="/agendar-consulta" element={<AgendarPage />} />*/}
         </Route>
 
         <Route path="/login" element={<LoginPage />} />
