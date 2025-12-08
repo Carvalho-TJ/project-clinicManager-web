@@ -1,19 +1,50 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+// IMPORTAÇÕES ESSENCIAIS
+import React from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'; // <-- Aqui está o BrowserRouter!
+
+// IMPORTAÇÕES DOS COMPONENTES
+import MainLayout from './components/Layout/MainLayout';
+import LoginPage from './pages/Auth/LoginPage'; 
+import ProtectedRoute from './components/Auth/ProtectedRoute'; 
+import AdminDashboard from './pages/Admin/AdminDashboard'; 
+import ProfessionalAgenda from './pages/Professional/ProfessionalAgenda';
+import PatientDashboard from './pages/Patient/PatientDashboard';
+import PublicLayout from './components/Layout/PublicLayout';
+import HomePage from './pages/HomePage/HomePage';
+
 
 function App() {
-
   return (
-    <Router>
+    <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Login />} />
-        <Route path="/" element={<Register />} />
-        <Route path="/" element={<Dashboard />} />
+        {/* Rotas Públicas (Sem login necessário) */}
+        <Route element={<PublicLayout />}>
+             <Route path="/" element={<HomePage />} />
+             <Route path="/sobre-nos" element={<h1>Sobre Nós</h1>} />
+        </Route>
+
+        <Route path="/login" element={<LoginPage />} />
+
+        <Route element={<MainLayout />}>
+          <Route 
+            path="/admin/dashboard" 
+            element={<ProtectedRoute allowedRoles={['admin']}><AdminDashboard /></ProtectedRoute>} 
+          />
+          <Route 
+            path="/prof/agenda" 
+            element={<ProtectedRoute allowedRoles={['professional']}><ProfessionalAgenda /></ProtectedRoute>} 
+          />
+          <Route 
+            path="/patient/dashboard" 
+            element={<ProtectedRoute allowedRoles={['patient']}><PatientDashboard /></ProtectedRoute>} 
+          />
+          <Route path="/" element={<Navigate to="/login" replace />} />
+        </Route>
+        
+        <Route path="*" element={<h1>Página Não Encontrada (404)</h1>} />
       </Routes>
-    </Router>
+    </BrowserRouter>
   );
 }
 
-export default App
+export default App;
