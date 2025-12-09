@@ -1,21 +1,25 @@
 import React, { useState } from 'react';
-import { Modal, Form, Button, Row, Col } from 'react-bootstrap';
+import { Modal, Form, Button, Row, Col, Alert, Spinner } from 'react-bootstrap';
 import { FaEnvelope, FaKey } from 'react-icons/fa';
+import { authAPI } from '../../services/api'; // CAMINHO CORRIGIDO!
 
 // Cores baseadas no layout
-const PRIMARY_COLOR = '#8c3d7e'; // Roxo principal
-const GRADIENT_START = '#8c3d7e'; // Roxo escuro para o botão
-const GRADIENT_END = '#c678b4'; // Rosa mais claro para o botão
-const LIGHT_BG = '#fcf5fa'; // Fundo do Card de Cadastro/Aba Inativa
+const PRIMARY_COLOR = '#8c3d7e';
+const GRADIENT_START = '#8c3d7e';
+const GRADIENT_END = '#c678b4';
+const LIGHT_BG = '#fcf5fa';
 
-// Componentes internos para o formulário
-const LoginForm = ({ handleLogin }) => (
+// Componente LoginForm ATUALIZADO
+const LoginForm = ({ handleLogin, loading, error }) => (
     <Form onSubmit={handleLogin}>
+        {error && <Alert variant="danger">{error}</Alert>}
+        
         <Form.Group className="mb-3" controlId="formBasicEmail">
             <FaEnvelope color="#8c3d7e" />
-            <Form.Label style={{ color: PRIMARY_COLOR }}><i className="fa fa-envelope me-2"></i>Email</Form.Label>
+            <Form.Label style={{ color: PRIMARY_COLOR }}>Email</Form.Label>
             <Form.Control 
                 type="email" 
+                name="email"
                 placeholder="seu@email.com" 
                 style={{ height: '50px', borderRadius: '0.5rem', borderColor: '#ccc' }} 
                 required 
@@ -24,207 +28,271 @@ const LoginForm = ({ handleLogin }) => (
 
         <Form.Group className="mb-4" controlId="formBasicPassword">
             <FaKey color="#8c3d7e" />
-            <Form.Label style={{ color: PRIMARY_COLOR }}><i className="fa fa-lock me-2"></i>Senha</Form.Label>
+            <Form.Label style={{ color: PRIMARY_COLOR }}>Senha</Form.Label>
             <Form.Control 
                 type="password" 
+                name="password"
                 placeholder="********" 
                 style={{ height: '50px', borderRadius: '0.5rem', borderColor: '#ccc' }} 
                 required 
             />
         </Form.Group>
         
-        {/* Botão Entrar com Gradiente */}
         <Button 
             variant="primary" 
             type="submit" 
             className="w-100 py-3 fw-bold"
+            disabled={loading}
             style={{ 
                 background: `linear-gradient(to right, ${GRADIENT_START}, ${GRADIENT_END})`,
                 border: 'none', 
                 borderRadius: '0.5rem'
             }}
         >
-            Entrar
+            {loading ? <Spinner size="sm" animation="border" /> : 'Entrar'}
         </Button>
     </Form>
 );
 
-const RegisterForm = ({ handleRegister }) => (
+// Componente RegisterForm ATUALIZADO
+const RegisterForm = ({ handleRegister, loading, error }) => (
     <Form onSubmit={handleRegister}>
-        {/* === SEÇÃO 1: DADOS PESSOAIS === */}
+        {error && <Alert variant="danger">{error}</Alert>}
+        
         <h6 className="fw-bold mb-3" style={{ color: PRIMARY_COLOR }}>Dados Pessoais</h6>
         <Row>
-            {/* Nome Completo */}
             <Col md={12}>
                 <Form.Group className="mb-3" controlId="formRegisterName">
                     <Form.Label>Nome Completo *</Form.Label>
-                    <Form.Control type="text" placeholder="João Silva" required />
+                    <Form.Control type="text" name="nome" placeholder="João Silva" required />
                 </Form.Group>
             </Col>
 
-            {/* CPF */}
             <Col md={6}>
                 <Form.Group className="mb-3" controlId="formRegisterCPF">
                     <Form.Label>CPF *</Form.Label>
-                    <Form.Control type="text" placeholder="000.000.000-00" required />
+                    <Form.Control type="text" name="cpf" placeholder="000.000.000-00" required />
                 </Form.Group>
             </Col>
 
-            {/* Data de Nascimento */}
             <Col md={6}>
                 <Form.Group className="mb-3" controlId="formRegisterBirthDate">
                     <Form.Label>Data de Nascimento *</Form.Label>
-                    <Form.Control type="date" required />
+                    <Form.Control type="date" name="dataNascimento" required />
                 </Form.Group>
             </Col>
 
-            {/* Estado Civil */}
             <Col md={12}>
                 <Form.Group className="mb-4" controlId="formRegisterMaritalStatus">
                     <Form.Label>Estado Civil *</Form.Label>
-                    <Form.Select required>
+                    <Form.Select name="estadoCivil" required>
                         <option value="">Selecione</option>
-                        <option>Solteiro(a)</option>
-                        <option>Casado(a)</option>
-                        <option>Divorciado(a)</option>
-                        <option>Viúvo(a)</option>
+                        <option value="Solteiro(a)">Solteiro(a)</option>
+                        <option value="Casado(a)">Casado(a)</option>
+                        <option value="Divorciado(a)">Divorciado(a)</option>
+                        <option value="Viúvo(a)">Viúvo(a)</option>
                     </Form.Select>
                 </Form.Group>
             </Col>
             
-            {/* Email */}
             <Col md={6}>
                 <Form.Group className="mb-3" controlId="formRegisterEmail">
                     <Form.Label>Email *</Form.Label>
-                    <Form.Control type="email" placeholder="seu@email.com" required />
+                    <Form.Control type="email" name="email" placeholder="seu@email.com" required />
                 </Form.Group>
             </Col>
 
-            {/* Telefone */}
             <Col md={6}>
                 <Form.Group className="mb-3" controlId="formRegisterPhone">
                     <Form.Label>Telefone *</Form.Label>
-                    <Form.Control type="tel" placeholder="(92) 99999-9999" required />
+                    <Form.Control type="tel" name="telefone" placeholder="(92) 99999-9999" required />
                 </Form.Group>
             </Col>
-            
         </Row>
 
-        {/* === SEÇÃO 2: ENDEREÇO E SENHA === */}
         <h6 className="fw-bold mb-3" style={{ color: PRIMARY_COLOR }}>Endereço</h6>
         <Row>
-            {/* Rua */}
             <Col md={8}>
                 <Form.Group className="mb-3" controlId="formRegisterStreet">
                     <Form.Label>Rua *</Form.Label>
-                    <Form.Control type="text" placeholder="Av. Amazonas" required />
+                    <Form.Control type="text" name="rua" placeholder="Av. Amazonas" required />
                 </Form.Group>
             </Col>
 
-            {/* Bairro */}
             <Col md={6}>
                 <Form.Group className="mb-3" controlId="formRegisterDistrict">
                     <Form.Label>Bairro *</Form.Label>
-                    <Form.Control type="text" placeholder="Centro" required />
+                    <Form.Control type="text" name="bairro" placeholder="Centro" required />
                 </Form.Group>
             </Col>
             
-            {/* Número */}
             <Col md={4}>
                 <Form.Group className="mb-3" controlId="formRegisterNumber">
                     <Form.Label>Número *</Form.Label>
-                    <Form.Control type="text" placeholder="123" required />
+                    <Form.Control type="text" name="numero" placeholder="123" required />
                 </Form.Group>
             </Col>
 
-            {/* CEP */}
             <Col md={4}>
                 <Form.Group className="mb-4" controlId="formRegisterCEP">
                     <Form.Label>CEP *</Form.Label>
-                    <Form.Control type="text" placeholder="69000-000" required />
+                    <Form.Control type="text" name="cep" placeholder="69000-000" required />
                 </Form.Group>
             </Col>
             
-            {/* Cidade */}
             <Col md={5}>
                 <Form.Group className="mb-3" controlId="formRegisterCity">
                     <Form.Label>Cidade *</Form.Label>
-                    <Form.Control type="text" placeholder="Parintins" required />
+                    <Form.Control type="text" name="cidade" placeholder="Parintins" required />
                 </Form.Group>
             </Col>
             
-            {/* Estado (UF) */}
             <Col md={3}>
                 <Form.Group className="mb-3" controlId="formRegisterState">
                     <Form.Label>Estado *</Form.Label>
-                    <Form.Select required>
+                    <Form.Select name="estado" required>
                         <option value="AM">AM</option>
-                        {/* Adicionar outros estados aqui... */}
+                        <option value="AC">AC</option>
+                        <option value="AL">AL</option>
+                        {/* Adicione outros estados */}
                     </Form.Select>
                 </Form.Group>
             </Col>
         </Row>
         
-        {/* === SEÇÃO 3: SENHA === */}
         <h6 className="fw-bold mb-3" style={{ color: PRIMARY_COLOR }}>Senha</h6>
         <Row className="mb-4">
-            {/* Senha */}
             <Col md={6}>
                 <Form.Group controlId="formRegisterPassword">
                     <Form.Label>Senha *</Form.Label>
-                    <Form.Control type="password" placeholder="********" required />
+                    <Form.Control type="password" name="senha" placeholder="********" required />
                 </Form.Group>
             </Col>
             
-            {/* Confirmar Senha */}
             <Col md={6}>
                 <Form.Group controlId="formRegisterConfirmPassword">
                     <Form.Label>Confirmar Senha *</Form.Label>
-                    <Form.Control type="password" placeholder="********" required />
+                    <Form.Control type="password" name="confirmarSenha" placeholder="********" required />
                 </Form.Group>
             </Col>
         </Row>
         
-        {/* Botão Cadastrar com Gradiente */}
         <Button 
             variant="primary" 
             type="submit" 
             className="w-100 py-3 fw-bold"
+            disabled={loading}
             style={{ 
                 background: `linear-gradient(to right, ${GRADIENT_START}, ${GRADIENT_END})`,
                 border: 'none', 
                 borderRadius: '0.5rem'
             }}
         >
-            Cadastrar
+            {loading ? <Spinner size="sm" animation="border" /> : 'Cadastrar'}
         </Button>
     </Form>
 );
 
 const AuthModal = ({ show, handleClose }) => {
-    // Estado para controlar se está em Login ou Cadastro
     const [activeTab, setActiveTab] = useState('login');
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState('');
 
-    const handleLogin = (e) => {
+    const handleLogin = async (e) => {
         e.preventDefault();
-        alert('Simulação: Tentativa de Login. (FUTURO: Chamar API)');
-        // handleClose(); // Fechar após o login (real)
+        setLoading(true);
+        setError('');
+
+        const formData = {
+            email: e.target.email.value,
+            senha: e.target.password.value,
+        };
+
+        try {
+            const response = await authAPI.login(formData);
+            
+            // Salvar token e dados
+            localStorage.setItem('token', response.data.token);
+            localStorage.setItem('user', JSON.stringify(response.data.user));
+            
+            alert('Login realizado com sucesso!');
+            handleClose();
+            window.location.reload(); // Atualiza o estado de autenticação
+        } catch (err) {
+            setError(err.response?.data?.message || 'Erro ao fazer login');
+        } finally {
+            setLoading(false);
+        }
     };
     
-    const handleRegister = (e) => {
-        e.preventDefault();
-        alert('Simulação: Tentativa de Cadastro. (FUTURO: Chamar API)');
-        // handleClose(); // Fechar após o cadastro (real)
+    const handleRegister = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+
+    // PEGA O VALOR DOS CAMPOS DO FORMULÁRIO
+    const nome = e.target.nome.value;
+    const cpf = e.target.cpf.value.replace(/\D/g, '');
+    const dataNascimento = e.target.dataNascimento.value; // Já vem em YYYY-MM-DD
+    const estadoCivil = e.target.estadoCivil.value;
+    const telefone = e.target.telefone.value.replace(/\D/g, '');
+    const email = e.target.email.value;
+    const senha = e.target.senha.value;
+    const confirmarSenha = e.target.confirmarSenha.value;
+
+    // Validações
+    if (senha !== confirmarSenha) {
+        setError('As senhas não coincidem');
+        setLoading(false);
+        return;
+    }
+
+    if (!nome || !email || !senha) {
+        setError('Nome, email e senha são obrigatórios');
+        setLoading(false);
+        return;
+    }
+
+    const formData = {
+        nome: nome,
+        cpf: cpf,
+        data_nasc: dataNascimento, // Nome correto: data_nasc
+        estado_civil: estadoCivil, // Nome correto: estado_civil
+        telefone: telefone,
+        email: email,
+        login: email, // Usa o email como login
+        senha: senha
     };
 
-    // Estilo da Aba Ativa
+    console.log('Enviando para API:', formData); // Para debug
+
+    try {
+        const response = await authAPI.registerPatient(formData);
+        console.log('Resposta da API:', response.data);
+        
+        alert('Cadastro realizado com sucesso! Faça login para continuar.');
+        setActiveTab('login'); // Muda para aba de login
+        setError('');
+        
+        // Limpa o formulário
+        e.target.reset();
+        
+    } catch (err) {
+        console.error('Erro completo:', err);
+        setError(err.response?.data?.error || err.message || 'Erro ao cadastrar');
+    } finally {
+        setLoading(false);
+    }
+};
+
+   
+
     const activeTabStyle = {
         backgroundColor: 'white',
         color: PRIMARY_COLOR,
         border: `1px solid ${PRIMARY_COLOR}`,
     };
     
-    // Estilo da Aba Inativa
     const inactiveTabStyle = {
         backgroundColor: LIGHT_BG,
         color: '#6c757d',
@@ -246,13 +314,12 @@ const AuthModal = ({ show, handleClose }) => {
             </Modal.Header>
             <Modal.Body className="p-4">
                 
-                {/* Abas de Navegação (Login / Cadastrar) */}
                 <div 
                     className="d-flex mb-4 p-1" 
                     style={{ backgroundColor: LIGHT_BG, borderRadius: '0.5rem' }}
                 >
                     <div 
-                        onClick={() => setActiveTab('login')}
+                        onClick={() => {setActiveTab('login'); setError('');}}
                         className="flex-fill text-center py-2 fw-bold"
                         style={{ 
                             cursor: 'pointer', 
@@ -264,7 +331,7 @@ const AuthModal = ({ show, handleClose }) => {
                         Login
                     </div>
                     <div 
-                        onClick={() => setActiveTab('register')}
+                        onClick={() => {setActiveTab('register'); setError('');}}
                         className="flex-fill text-center py-2 fw-bold"
                         style={{ 
                             cursor: 'pointer', 
@@ -277,11 +344,18 @@ const AuthModal = ({ show, handleClose }) => {
                     </div>
                 </div>
 
-                {/* Conteúdo do Formulário */}
                 {activeTab === 'login' ? (
-                    <LoginForm handleLogin={handleLogin} />
+                    <LoginForm 
+                        handleLogin={handleLogin} 
+                        loading={loading}
+                        error={error}
+                    />
                 ) : (
-                    <RegisterForm handleRegister={handleRegister} />
+                    <RegisterForm 
+                        handleRegister={handleRegister} 
+                        loading={loading}
+                        error={error}
+                    />
                 )}
                 
             </Modal.Body>
