@@ -13,9 +13,9 @@ const api = axios.create({
 // Interceptor para adicionar token automático
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+    const user = JSON.parse(localStorage.getItem('clinic_user') || '{}');
+    if (user?.token) {
+      config.headers.Authorization = `Bearer ${user.token}`;
     }
     return config;
   },
@@ -25,15 +25,37 @@ api.interceptors.request.use(
 export const authAPI = {
   login: (credentials) => api.post('/auth/login', credentials),
   registerPatient: (patientData) => api.post('/auth/registrar-paciente', patientData),
-  //registerUser: (userData) => api.post('/auth/register', userData),
+  verifyToken: () => api.get('/auth/verificar'),
 };
 
 export const pacienteAPI = {
-  getAll: () => api.get('/paciente'),
-  getById: (id) => api.get(`/paciente/${id}`),
-  create: (data) => api.post('/paciente', data),
-  update: (id, data) => api.put(`/paciente/${id}`, data),
-  delete: (id) => api.delete(`/paciente/${id}`),
+  getMe: () => api.get('/paciente/me'),
+  updateMe: (data) => api.put('/paciente/me', data),
+  getEnderecos: () => api.get('/paciente/enderecos'),
+  addEndereco: (data) => api.post('/paciente/enderecos', data),
+  deleteEndereco: (id) => api.delete(`/paciente/enderecos/${id}`),
 };
+
+export const agendamentoAPI = {
+  // Tipos e especialidades
+  getTiposAtendimento: () => api.get('/tipos-atendimento'),
+  getEspecialidades: (tipo) => api.get('/especialidades', { params: { tipo } }),
+  getProfissionaisPorEspecialidade: (especialidade, tipo) => 
+    api.get(`/especialidades/${especialidade}/profissionais`, { params: { tipo } }),
+  
+  // Agenda
+  getDatasDisponiveis: (profissionalId, mes, ano) => 
+    api.get(`/agenda/profissional/${profissionalId}/datas`, { params: { mes, ano } }),
+  
+  getHorariosDisponiveis: (profissionalId, data) => 
+    api.get(`/agenda/profissional/${profissionalId}/horarios`, { params: { data } }),
+  
+  // Agendamento
+  criarAgendamento: (dados) => api.post('/agendamentos/completo', dados),
+  getMeusAgendamentos: () => api.get('/agendamentos/meus-agendamentos'),
+  getDetalhesAgendamento: (id) => api.get(`/agendamentos/${id}/detalhes`),
+  cancelarAgendamento: (id) => api.put(`/agendamentos/${id}/cancelar`),
+};
+
 
 export default api;

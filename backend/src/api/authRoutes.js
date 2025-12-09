@@ -1,33 +1,66 @@
 const express = require('express');
 const router = express.Router();
-const bcrypt = require('bcrypt'); // IMPORTE DIRETO DO BCRYPT
+const bcrypt = require('bcryptjs'); // MUDAR PARA bcryptjs (mais compatível)
+
 const { Usuario, Paciente } = require('../db/models');
 const AuthMiddleware = require('../middleware/auth');
 
 // Login
+// Login - VERSÃO FINAL CORRIGIDA
 router.post('/login', async (req, res) => {
     try {
-        const { login, senha } = req.body;
+        // ADICIONE ESTE LOG PARA VER O QUE CHEGA
+        console.log('📥 ========== LOGIN REQUEST ==========');
+        console.log('📥 Body:', JSON.stringify(req.body, null, 2));
+        console.log('📥 Headers:', req.headers['content-type']);
         
-        if (!login || !senha) {
+        const { login, email, senha } = req.body;
+
+        // Usa email se login não foi fornecido
+        const loginField = login || email;
+        
+        console.log('🔍 Processando:', {
+            loginField: loginField,
+            temSenha: !!senha
+        });
+        
+        // CORREÇÃO AQUI: usar loginField em vez de login
+        if (!loginField || !senha) {
+            console.log('❌ FALHA: loginField ou senha vazios');
             return res.status(400).json({ 
-                error: 'Login e senha são obrigatórios' 
+                error: 'Login/Email e senha são obrigatórios' 
             });
         }
 
-        // Busca usuário
-        const usuario = await Usuario.findByLogin(login);
+        console.log('🔍 Buscando usuário no banco...');
+        
+        // CORREÇÃO AQUI: buscar por loginField
+        const usuario = await Usuario.findByLogin(loginField);
+        
+        console.log('👤 Resultado da busca:', usuario ? 'ENCONTRADO' : 'NÃO ENCONTRADO');
         
         if (!usuario) {
+            console.log('❌ Usuário não existe no banco');
             return res.status(401).json({ 
                 error: 'Credenciais inválidas' 
             });
         }
 
-        // Verifica senha - USANDO BCRYPT DIRETAMENTE
+        console.log('✅ Usuário encontrado:', {
+            id: usuario.id_usuario,
+            login: usuario.login,
+            email: usuario.email,
+            ativo: usuario.ativo
+        });
+
+        // Verifica senha
+        console.log('🔐 Verificando senha...');
         const senhaValida = await bcrypt.compare(senha, usuario.senha_hash);
         
+        console.log('🔐 Senha válida?', senhaValida);
+        
         if (!senhaValida) {
+            console.log('❌ Senha não confere');
             return res.status(401).json({ 
                 error: 'Credenciais inválidas' 
             });
@@ -35,14 +68,18 @@ router.post('/login', async (req, res) => {
 
         // Verifica se está ativo
         if (!usuario.ativo) {
+            console.log('❌ Usuário inativo');
             return res.status(403).json({ 
                 error: 'Usuário desativado' 
             });
         }
 
         // Gera token
+        console.log('🎫 Gerando token JWT...');
         const token = AuthMiddleware.gerarToken(usuario);
 
+        console.log('✅ LOGIN BEM-SUCEDIDO para:', usuario.nome);
+        
         res.json({
             access_token: token,
             token_type: 'bearer',
@@ -52,9 +89,11 @@ router.post('/login', async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Erro no login:', error);
+        console.error('💥 ERRO NO LOGIN:', error);
+        console.error('💥 Stack:', error.stack);
         res.status(500).json({ 
-            error: 'Erro interno do servidor' 
+            error: 'Erro interno do servidor',
+            detalhes: error.message 
         });
     }
 });

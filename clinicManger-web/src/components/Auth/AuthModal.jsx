@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Modal, Form, Button, Row, Col, Alert, Spinner } from 'react-bootstrap';
 import { FaEnvelope, FaKey } from 'react-icons/fa';
-import { authAPI } from '../../services/api'; // CAMINHO CORRIGIDO!
+import { authAPI } from '../../services/api';
 
 // Cores baseadas no layout
 const PRIMARY_COLOR = '#8c3d7e';
@@ -31,7 +31,7 @@ const LoginForm = ({ handleLogin, loading, error }) => (
             <Form.Label style={{ color: PRIMARY_COLOR }}>Senha</Form.Label>
             <Form.Control 
                 type="password" 
-                name="password"
+                name="senha"
                 placeholder="********" 
                 style={{ height: '50px', borderRadius: '0.5rem', borderColor: '#ccc' }} 
                 required 
@@ -203,89 +203,181 @@ const AuthModal = ({ show, handleClose }) => {
         setLoading(true);
         setError('');
 
-        const formData = {
-            email: e.target.email.value,
-            senha: e.target.password.value,
+        const formData = new FormData(e.target);
+        const email = formData.get('email');
+        const senha = formData.get('senha');
+
+        console.log('📤 Valores obtidos:', { email, senha });
+
+        // CORREÇÃO: O backend espera "login" não "email"
+        const dataToSend = {
+            login: email,
+            senha: senha,
         };
 
+        console.log('📤 Enviando para API:', dataToSend);
+
         try {
-            const response = await authAPI.login(formData);
+            const response = await authAPI.login(dataToSend);
+            console.log('✅ Resposta da API:', response.data);
             
-            // Salvar token e dados
-            localStorage.setItem('token', response.data.token);
-            localStorage.setItem('user', JSON.stringify(response.data.user));
-            
-            alert('Login realizado com sucesso!');
+            // VERIFICAÇÃO DOS DADOS RECEBIDOS
+            console.log('🔍 Dados importantes do backend:', {
+                access_token: response.data.access_token,
+                user_id: response.data.user_id,
+                nome: response.data.nome,
+                user_type: response.data.user_type,
+                token_type: response.data.token_type
+            });
+
+            // CORREÇÃO: O backend retorna "access_token" não "token"
+            const token = response.data.access_token;
+            if (!token) {
+                throw new Error('Token não recebido do servidor');
+            }
+
+            // CORREÇÃO: Mapear user_type do backend para role do frontend
+            const userTypeMap = {
+                'paciente': 'patient',
+                'profissional': 'professional',
+                'admin': 'admin'
+            };
+
+            const userData = {
+                id: response.data.user_id,
+                name: response.data.nome,
+                role: userTypeMap[response.data.user_type] || response.data.user_type,
+                tipo: response.data.user_type, // Mantém o original
+                email: email,
+                token: token
+            };
+
+            console.log('📱 Dados processados para localStorage:', userData);
+
+            // SALVAR NO LOCALSTORAGE CORRETAMENTE
+            localStorage.setItem('token', token);
+            localStorage.setItem('user', JSON.stringify(userData));
+
+            // VERIFICAÇÃO DO QUE FOI SALVO
+            console.log('✅ Verificação do localStorage:');
+            console.log('- Token salvo:', localStorage.getItem('token')?.substring(0, 20) + '...');
+            console.log('- User salvo:', JSON.parse(localStorage.getItem('user')));
+
+            // FECHAR MODAL
             handleClose();
-            window.location.reload(); // Atualiza o estado de autenticação
+
+            // MENSAGEM DE SUCESSO
+            alert(`✅ Login realizado com sucesso!\nBem-vindo(a), ${response.data.nome}!`);
+
+            // REDIRECIONAMENTO IMEDIATO PARA O DASHBOARD CORRETO
+            console.log('🔀 Iniciando redirecionamento...');
+            console.log('🎯 Tipo de usuário:', response.data.user_type);
+
+            // Pequeno delay para garantir que o modal fechou
+            setTimeout(() => {
+                if (response.data.user_type === 'paciente') {
+                    console.log('🎯 Redirecionando para /patient/dashboard');
+                    window.location.href = '/patient/dashboard';
+                } else if (response.data.user_type === 'profissional') {
+                    console.log('🎯 Redirecionando para /professional/dashboard');
+                    window.location.href = '/professional/dashboard';
+                } else if (response.data.user_type === 'admin') {
+                    console.log('🎯 Redirecionando para /admin/dashboard');
+                    window.location.href = '/admin/dashboard';
+                } else {
+                    console.log('⚠️ Tipo de usuário desconhecido, redirecionando para home');
+                    window.location.href = '/';
+                }
+            }, 300);
+
         } catch (err) {
-            setError(err.response?.data?.message || 'Erro ao fazer login');
+            console.error('❌ Erro completo no login:', err);
+            console.error('❌ Resposta do erro:', err.response?.data);
+            
+            // MENSAGENS DE ERRO MAIS DESCRITIVAS
+            let errorMessage = 'Erro ao fazer login';
+            
+            if (err.response?.status === 400) {
+                errorMessage = err.response.data.error || 'Credenciais inválidas';
+            } else if (err.response?.status === 401) {
+                errorMessage = 'Email ou senha incorretos';
+            } else if (err.response?.status === 403) {
+                errorMessage = 'Usuário desativado';
+            } else if (err.message?.includes('Token não recebido')) {
+                errorMessage = 'Problema na autenticação. Tente novamente.';
+            } else if (err.message) {
+                errorMessage = err.message;
+            }
+            
+            setError(errorMessage);
+            
+            // Para debug, mostra também no console
+            console.log('💡 Mensagem de erro para o usuário:', errorMessage);
+            
         } finally {
             setLoading(false);
         }
     };
     
     const handleRegister = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setError('');
-
-    // PEGA O VALOR DOS CAMPOS DO FORMULÁRIO
-    const nome = e.target.nome.value;
-    const cpf = e.target.cpf.value.replace(/\D/g, '');
-    const dataNascimento = e.target.dataNascimento.value; // Já vem em YYYY-MM-DD
-    const estadoCivil = e.target.estadoCivil.value;
-    const telefone = e.target.telefone.value.replace(/\D/g, '');
-    const email = e.target.email.value;
-    const senha = e.target.senha.value;
-    const confirmarSenha = e.target.confirmarSenha.value;
-
-    // Validações
-    if (senha !== confirmarSenha) {
-        setError('As senhas não coincidem');
-        setLoading(false);
-        return;
-    }
-
-    if (!nome || !email || !senha) {
-        setError('Nome, email e senha são obrigatórios');
-        setLoading(false);
-        return;
-    }
-
-    const formData = {
-        nome: nome,
-        cpf: cpf,
-        data_nasc: dataNascimento, // Nome correto: data_nasc
-        estado_civil: estadoCivil, // Nome correto: estado_civil
-        telefone: telefone,
-        email: email,
-        login: email, // Usa o email como login
-        senha: senha
-    };
-
-    console.log('Enviando para API:', formData); // Para debug
-
-    try {
-        const response = await authAPI.registerPatient(formData);
-        console.log('Resposta da API:', response.data);
-        
-        alert('Cadastro realizado com sucesso! Faça login para continuar.');
-        setActiveTab('login'); // Muda para aba de login
+        e.preventDefault();
+        setLoading(true);
         setError('');
-        
-        // Limpa o formulário
-        e.target.reset();
-        
-    } catch (err) {
-        console.error('Erro completo:', err);
-        setError(err.response?.data?.error || err.message || 'Erro ao cadastrar');
-    } finally {
-        setLoading(false);
-    }
-};
 
-   
+        // PEGA O VALOR DOS CAMPOS DO FORMULÁRIO
+        const nome = e.target.nome.value;
+        const cpf = e.target.cpf.value.replace(/\D/g, '');
+        const dataNascimento = e.target.dataNascimento.value;
+        const estadoCivil = e.target.estadoCivil.value;
+        const telefone = e.target.telefone.value.replace(/\D/g, '');
+        const email = e.target.email.value;
+        const senha = e.target.senha.value;
+        const confirmarSenha = e.target.confirmarSenha.value;
+
+        // Validações
+        if (senha !== confirmarSenha) {
+            setError('As senhas não coincidem');
+            setLoading(false);
+            return;
+        }
+
+        if (!nome || !email || !senha) {
+            setError('Nome, email e senha são obrigatórios');
+            setLoading(false);
+            return;
+        }
+
+        const formData = {
+            nome: nome,
+            cpf: cpf,
+            data_nasc: dataNascimento,
+            estado_civil: estadoCivil,
+            telefone: telefone,
+            email: email,
+            login: email, // Usa o email como login
+            senha: senha
+        };
+
+        console.log('Enviando para API (cadastro):', formData);
+
+        try {
+            const response = await authAPI.registerPatient(formData);
+            console.log('Resposta da API (cadastro):', response.data);
+            
+            alert('✅ Cadastro realizado com sucesso! Faça login para continuar.');
+            setActiveTab('login');
+            setError('');
+            
+            // Limpa o formulário
+            e.target.reset();
+            
+        } catch (err) {
+            console.error('Erro completo no cadastro:', err);
+            setError(err.response?.data?.error || err.message || 'Erro ao cadastrar');
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const activeTabStyle = {
         backgroundColor: 'white',

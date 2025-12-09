@@ -186,6 +186,115 @@ router.get('/:id/detalhes', AuthMiddleware.verificarToken, async (req, res) => {
             hora: dataHora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
         };
         
+        router.get('/meus-agendamentos', AuthMiddleware.verificarToken, AuthMiddleware.verificarPaciente, async (req, res) => {
+    try {
+        const pacienteId = req.usuario.id;
+        
+        const sql = `
+            SELECT 
+                a.id_agendamento,
+                a.data_hora,
+                a.duracao_min,
+                a.status,
+                a.tipo_atendimento,
+                a.especialidade,
+                a.created_at,
+                
+                p.nome as profissional_nome,
+                p.crm,
+                p.telefone as profissional_telefone,
+                p.email as profissional_email
+                
+            FROM agendamento a
+            JOIN profissional p ON a.id_profissional = p.id_profissional
+            WHERE a.id_paciente = ?
+                AND a.deleted_at IS NULL
+                AND a.data_hora > DATE_SUB(NOW(), INTERVAL 6 MONTH)
+            ORDER BY a.data_hora DESC
+            LIMIT 50
+        `;
+        
+        const agendamentos = await db.query(sql, [pacienteId]);
+        
+        // Formata as datas
+        const agendamentosFormatados = agendamentos.map(ag => ({
+            ...ag,
+            data_formatada: new Date(ag.data_hora).toLocaleDateString('pt-BR'),
+            hora_formatada: new Date(ag.data_hora).toLocaleTimeString('pt-BR', { 
+                hour: '2-digit', 
+                minute: '2-digit' 
+            }),
+            data_hora_obj: new Date(ag.data_hora),
+            pode_cancelar: ag.status === 'solicitado' || ag.status === 'confirmado'
+        }));
+        
+        res.json(agendamentosFormatados);
+        
+    } catch (error) {
+        console.error('Erro ao buscar agendamentos:', error);
+        res.status(500).json({ error: 'Erro interno do servidor' });
+    }
+});
+
+// Cancelar agendamento
+router.put('/:id/cancelar', AuthMiddleware.verificarToken, AuthMiddleware.verificarPaciente, async (req, res) => {
+    try {
+        const agendamentoId = parseInt(req.params.id);
+        const pacienteId = req.usuario.id;
+        
+        // Verifica se o agendamento pertence ao paciente
+        const checkSql = `
+            SELECT status, data_hora 
+            FROM agendamento 
+            WHERE id_agendamento = ? 
+                AND id_paciente = ?
+                AND deleted_at IS NULL
+        `;
+        const [agendamento] = await db.query(checkSql, [agendamentoId, pacienteId]);
+        
+        if (!agendamento) {
+            return res.status(404).json({ error: 'Agendamento não encontrado' });
+        }
+        
+        // Verifica se pode cancelar (apenas solicitado ou confirmado)
+        if (!['solicitado', 'confirmado'].includes(agendamento.status)) {
+            return res.status(400).json({ 
+                error: 'Agendamento não pode ser cancelado neste status' 
+            });
+        }
+        
+        // Verifica se está a pelo menos 24h de antecedência
+        const dataHora = new Date(agendamento.data_hora);
+        const agora = new Date();
+        const horasAntecedencia = 24;
+        
+        if ((dataHora - agora) < (horasAntecedencia * 60 * 60 * 1000)) {
+            return res.status(400).json({ 
+                error: `Cancelamento deve ser feito com pelo menos ${horasAntecedencia}h de antecedência` 
+            });
+        }
+
+        // Atualiza status para cancelado
+        const updateSql = `
+            UPDATE agendamento 
+            SET status = 'cancelado', 
+                atualizado_por = ?,
+                updated_at = NOW()
+            WHERE id_agendamento = ?
+        `;
+        
+        await db.query(updateSql, [pacienteId, agendamentoId]);
+
+         res.json({ 
+            success: true, 
+            message: 'Agendamento cancelado com sucesso' 
+        });
+        
+    } catch (error) {
+        console.error('Erro ao cancelar agendamento:', error);
+        res.status(500).json({ error: 'Erro interno do servidor' });
+    }
+});
         // Formata o endereço
         const enderecoFormatado = agendamento.rua ? 
             `${agendamento.rua}, ${agendamento.numero} - ${agendamento.bairro}\n${agendamento.cidade} - ${agendamento.estado}\nCEP: ${agendamento.cep}` :
@@ -227,6 +336,7 @@ router.get('/:id/detalhes', AuthMiddleware.verificarToken, async (req, res) => {
             error: 'Erro interno do servidor' 
         });
     }
+
 });
 
 // Exporta as rotas existentes também

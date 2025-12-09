@@ -5,12 +5,13 @@ class AuthMiddleware {
     static gerarToken(usuario) {
         return jwt.sign(
             {
-                sub: usuario.id_usuario,
+                id: usuario.id_usuario,
                 tipo: usuario.tipo,
-                nome: usuario.nome || usuario.login
+                nome: usuario.nome,
+                email: usuario.email || null
             },
             process.env.JWT_SECRET,
-            { expiresIn: process.env.JWT_EXPIRES_IN }
+            { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
         );
     }
 
