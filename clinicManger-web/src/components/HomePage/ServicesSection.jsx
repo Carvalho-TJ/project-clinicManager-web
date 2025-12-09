@@ -33,7 +33,7 @@ const ServicesSection = () => {
     const [hoveredIndex, setHoveredIndex] = useState(null);
 
     return (
-        <section className="py-5" style={{ backgroundColor: 'white' }}>
+        <section id="nossos-servicos" className="py-5" style={{ backgroundColor: 'white' }}>
             <Container className="text-center">
                 
                 {/* Cabeçalho da Seção */}

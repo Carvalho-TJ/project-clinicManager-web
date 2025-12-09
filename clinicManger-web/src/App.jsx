@@ -12,7 +12,7 @@ import PatientDashboard from './pages/Patient/PatientDashboard';
 import PublicLayout from './components/Layout/PublicLayout';
 import HomePage from './pages/HomePage/HomePage';
 import SobrePage from './pages/SobrePage/SobrePage'
-//import AgendarPage from './pages/AgendarPage/AgendarPage'
+import AgendarPage from './pages/AgendarPage/AgendarPage'
 
 function App() {
   return (
@@ -22,7 +22,7 @@ function App() {
         <Route element={<PublicLayout />}>
              <Route path="/" element={<HomePage />} />
              <Route path="/sobre-nos" element={<SobrePage />} />
-             {/*<Route path="/agendar-consulta" element={<AgendarPage />} />*/}
+             <Route path="/agendar-consulta" element={<AgendarPage />} />
         </Route>
 
         <Route path="/login" element={<LoginPage />} />

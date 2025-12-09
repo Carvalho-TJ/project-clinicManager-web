@@ -1,21 +1,20 @@
 import React from 'react';
 import { Navbar, Nav, Container, Button } from 'react-bootstrap';
 import { FaPhoneAlt, FaEnvelope, FaClock } from 'react-icons/fa';
-import { Link } from 'react-router-dom';
+import { Link, NavLink } from 'react-router-dom';
 
 import Logo from '../../assets/logo.png';
 
-const PRIMARY_COLOR = '#8c3d7e';
+const HEADER_TOP_COLOR = '#8c3d7e';
+const PRIMARY_COLOR = '#a3488f';
 
 const Header = () => {
     return (
         <header>
-
-            {/* -------------------------- */}
-            {/* TOP BAR (Contatos)         */}
-            {/* -------------------------- */}
+            
+            {/* Barra de Contato Superior */}
             <div 
-                style={{ backgroundColor: PRIMARY_COLOR, color: 'white', fontSize: '0.9rem' }}
+                style={{ backgroundColor: HEADER_TOP_COLOR, color: 'white', fontSize: '0.9rem' }}
                 className="w-100"
             >
                 <Container fluid className="py-2">
@@ -44,9 +43,7 @@ const Header = () => {
                 </Container>
             </div>
 
-            {/* -------------------------- */}
-            {/* MAIN NAVBAR                */}
-            {/* -------------------------- */}
+            {/* Navbar Principal */}
             <Navbar 
                 bg="white" 
                 expand="lg" 
@@ -58,7 +55,7 @@ const Header = () => {
                     <Navbar.Brand as={Link} to="/" className="d-flex align-items-center">
                         <img 
                             src={Logo} 
-                            alt="logo" 
+                            alt="ClinicManager Logo" 
                             style={{ 
                                 maxHeight: "50px",
                                 width: "auto",
@@ -83,19 +80,19 @@ const Header = () => {
                         </Nav>
 
                         {/* BOTÃO AGENDAR */}
-                        <Button
-                            as={Link}
-                            to="/agendamento"
-                            style={{
-                                backgroundColor: PRIMARY_COLOR,
-                                borderColor: PRIMARY_COLOR,
-                                padding: '10px 25px',
-                                borderRadius: '2rem',
-                                fontWeight: 500
-                            }}
-                        >
-                            Agendar Consulta
-                        </Button>
+                        <Link to="/agendar-consulta" className="ms-md-3">
+                            <Button 
+                                style={{ 
+                                    backgroundColor: PRIMARY_COLOR, 
+                                    border: 'none', 
+                                    padding: '8px 25px', 
+                                    fontWeight: 'bold',
+                                    lineHeight: '1.5' // Para alinhamento vertical
+                                }}
+                            >
+                                Agendar Consulta
+                            </Button>
+                        </Link>
 
                     </Navbar.Collapse>
 

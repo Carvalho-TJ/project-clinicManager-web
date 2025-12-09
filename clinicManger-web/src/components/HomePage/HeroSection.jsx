@@ -25,7 +25,7 @@ const HeroSection = () => {
             <Container>
                 <Row className="align-items-center">
                     
-                    {/* COLUNA ESQUERDA: Texto, CTAs e Estatísticas */}
+                    {/* COLUNA ESQUERDA */}
                     <Col lg={6} className="pe-lg-5 mb-5 mb-lg-0">
                         
                         {/* Tag de Destaque */}
@@ -44,11 +44,11 @@ const HeroSection = () => {
                             Há mais de 20 anos oferecendo serviços médicos e odontológicos de qualidade para toda a família. Agende sua consulta e conte com uma equipe especializada.
                         </p>
                         
-                        {/* Botões CTA (Call to Action) */}
+                        {/* Botões */}
                         <div className="d-flex mb-5">
                             <Button 
                                 as={Link} 
-                                to="/agendamento" 
+                                to="/agendar-consulta" 
                                 style={{ 
                                     backgroundColor: PRIMARY_COLOR, 
                                     borderColor: PRIMARY_COLOR, 
@@ -61,9 +61,8 @@ const HeroSection = () => {
                                 Agendar Consulta
                             </Button>
                             
-                            <Button 
-                                as={Link} 
-                                to="/servicos" 
+                            <a href='#nossos-servicos'>
+                                <Button
                                 variant="outline"
                                 style={{
                                     borderColor: BUTTON_OUTLINE_COLOR,
@@ -73,12 +72,14 @@ const HeroSection = () => {
                                     backgroundColor: 'transparent'
                                 }}
                                 className="fw-bold"
-                            >
-                                Nossos Serviços
-                            </Button>
+                                >
+                                    Nossos Serviços
+                                </Button>
+                            </a>
+                            
                         </div>
                         
-                        {/* Estatísticas (Linha de Cards Inferior) */}
+                        {/* Estatísticas e Cards */}
                         <Row className="mt-4 pt-4 border-top">
                             {stats.map((stat, index) => (
                                 <Col key={index} xs={4} className="text-center">
@@ -95,7 +96,7 @@ const HeroSection = () => {
                     {/* COLUNA DIREITA: Imagem da Clínica com Certificado */}
                     <Col lg={6}>
                         <div style={{ position: 'relative' }}>
-                            {/* Card para simular a imagem arredondada (Você substituiria por uma tag <img> real) */}
+
                             <Card className="shadow-lg border-0" style={{ borderRadius: '1rem', overflow: 'hidden' }}>
                                 <Card.Body className="p-0">
                                     {/* Placeholder da Imagem da Clínica */}
