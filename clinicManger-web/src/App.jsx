@@ -13,6 +13,7 @@ import PublicLayout from './components/Layout/PublicLayout';
 import HomePage from './pages/HomePage/HomePage';
 import SobrePage from './pages/SobrePage/SobrePage'
 import AgendarPage from './pages/AgendarPage/AgendarPage'
+import AtendimentoPage from './pages/TipoAtendimentoPage/TipoAtendimentoPage'
 
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
              <Route path="/" element={<HomePage />} />
              <Route path="/sobre-nos" element={<SobrePage />} />
              <Route path="/agendar-consulta" element={<AgendarPage />} />
+             <Route path="/tipo-atendimento" element={<AtendimentoPage />} />
         </Route>
 
         <Route path="/login" element={<LoginPage />} />
