@@ -1,4 +1,3 @@
-// IMPORTAÇÕES ESSENCIAIS
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'; // <-- Aqui está o BrowserRouter!
 
@@ -22,7 +21,6 @@ function App() {
         <Route element={<PublicLayout />}>
              <Route path="/" element={<HomePage />} />
              <Route path="/sobre-nos" element={<SobrePage />} />
-             <Route path="/agendar-consulta" element={<AgendarPage />} />
         </Route>
 
         <Route path="/login" element={<LoginPage />} />
@@ -41,7 +39,13 @@ function App() {
             element={<ProtectedRoute allowedRoles={['patient']}><PatientDashboard /></ProtectedRoute>} 
           />
           <Route path="/" element={<Navigate to="/login" replace />} />
+          <Route 
+            path="/agendar-consulta" 
+            element={<ProtectedRoute allowedRoles={['patient']}><AgendarPage /></ProtectedRoute>} 
+          />
+          
         </Route>
+    
         
         <Route path="*" element={<h1>Página Não Encontrada (404)</h1>} />
       </Routes>

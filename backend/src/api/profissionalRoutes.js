@@ -18,7 +18,6 @@ router.get('/', async (req, res) => {
                 p.crm,
                 p.telefone,
                 p.email,
-                p.tipo_atendimento,
                 u.ativo
             FROM profissional p
             JOIN usuario u ON p.id_profissional = u.id_usuario
@@ -57,7 +56,6 @@ router.get('/:id', async (req, res) => {
                 p.crm,
                 p.telefone,
                 p.email,
-                p.tipo_atendimento,
                 p.created_at,
                 p.updated_at
             FROM profissional p
@@ -66,7 +64,7 @@ router.get('/:id', async (req, res) => {
                 AND p.deleted_at IS NULL
                 AND u.ativo = TRUE
         `;
-        
+                
         const [profissional] = await db.query(sql, [profissionalId]);
         
         if (!profissional) {
@@ -134,7 +132,6 @@ adminRoutes.post('/', async (req, res) => {
             crm, 
             telefone, 
             email, 
-            tipo_atendimento,
             login,
             senha 
         } = req.body;
@@ -187,8 +184,8 @@ adminRoutes.post('/', async (req, res) => {
             // Criar profissional
             const profSql = `
                 INSERT INTO profissional 
-                (id_profissional, nome, especialidade, crm, telefone, email, tipo_atendimento)
-                VALUES (?, ?, ?, ?, ?, ?, ?)
+                (id_profissional, nome, especialidade, crm, telefone, email)
+                VALUES (?, ?, ?, ?, ?, ?)
             `;
             await connection.execute(profSql, [
                 userId,
@@ -197,7 +194,6 @@ adminRoutes.post('/', async (req, res) => {
                 crm || null,
                 telefone || null,
                 email || null,
-                tipo_atendimento || 'medicina'
             ]);
             
             // Criar agenda padrão (Segunda a Sexta, 8h-12h e 14h-18h)
@@ -245,7 +241,7 @@ adminRoutes.put('/:id', async (req, res) => {
     try {
         const db = require('../db/database');
         const profissionalId = parseInt(req.params.id);
-        const { nome, especialidade, crm, telefone, email, tipo_atendimento, ativo } = req.body;
+        const { nome, especialidade, crm, telefone, email, ativo } = req.body;
         
         if (!profissionalId) {
             return res.status(400).json({ 
@@ -279,7 +275,7 @@ adminRoutes.put('/:id', async (req, res) => {
         const updateSql = `
             UPDATE profissional 
             SET nome = ?, especialidade = ?, crm = ?, telefone = ?, 
-                email = ?, tipo_atendimento = ?, updated_at = NOW()
+                email = ?, updated_at = NOW()
             WHERE id_profissional = ?
         `;
         

@@ -4,58 +4,88 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
 const LoginPage = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [loginField, setLoginField] = useState('');
+  const [senha, setSenha] = useState(''); 
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   
-  const { login, isAuthenticated, user } = useAuth();
+  const { login, isAuthenticated, user, loading } = useAuth();
   const navigate = useNavigate();
 
   // Redireciona se já estiver autenticado
   useEffect(() => {
-    if (isAuthenticated) {
-      // Redireciona para o dashboard correto com base no perfil (role)
+    if (!loading && isAuthenticated && user) {
+      console.log('🔄 Usuário autenticado, redirecionando:', user);
+      
       let redirectPath = '/';
-      if (user.role === 'admin') {
+      if (user.tipo === 'admin' || user.role === 'admin') {
         redirectPath = '/admin/dashboard';
-      } else if (user.role === 'professional') {
+      } else if (user.tipo === 'profissional' || user.role === 'professional') {
         redirectPath = '/prof/agenda';
-      } else if (user.role === 'patient') {
+      } else if (user.tipo === 'paciente' || user.role === 'patient') {
         redirectPath = '/patient/dashboard';
       }
+      
+      console.log(`📍 Redirecionando para: ${redirectPath}`);
       navigate(redirectPath, { replace: true });
     }
-  }, [isAuthenticated, user, navigate]);
-
+  }, [isAuthenticated, user, loading, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setIsSubmitting(true);
 
-    if (!email || !password) {
+    if (!loginField || !senha) {
       setError('Por favor, preencha todos os campos.');
       setIsSubmitting(false);
       return;
     }
 
     try {
-      // 1. Chama a função de login do AuthContext (que ainda usa o mock)
-      const userData = await login({ email, password });
+      console.log('📤 Iniciando login...');
       
-      // 2. O useEffect cuida do redirecionamento após o sucesso do login.
+      const userData = await login({ 
+        email: loginField,
+        senha: senha
+      });
+      
+      console.log('✅ Login processado com sucesso!', userData);
+      // O redirecionamento será feito pelo useEffect
       
     } catch (err) {
-      // Exibe a mensagem de erro do mockLoginAPI (Credenciais inválidas)
+      console.error('❌ Erro no login:', err);
       setError(err.message || 'Erro ao tentar logar.');
       setIsSubmitting(false);
     }
   };
 
-  if (isAuthenticated) {
-    // Se o useEffect ainda não redirecionou (muito rápido), mostre um loader
-    return <div className="text-center mt-5"><Spinner animation="border" /></div>;
+ 
+  useEffect(() => {
+    console.log('🔍 Estado atual do login:', {
+      loading,
+      isAuthenticated,
+      user,
+      token: localStorage.getItem('token')
+    });
+  }, [loading, isAuthenticated, user]);
+
+  if (loading) {
+    return (
+      <Container className="d-flex justify-content-center align-items-center" style={{ minHeight: '100vh' }}>
+        <Spinner animation="border" variant="primary" />
+        <span className="ms-3">Verificando autenticação...</span>
+      </Container>
+    );
+  }
+
+  if (isAuthenticated && user) {
+    return (
+      <Container className="d-flex justify-content-center align-items-center" style={{ minHeight: '100vh' }}>
+        <Spinner animation="border" variant="primary" />
+        <span className="ms-3">Redirecionando...</span>
+      </Container>
+    );
   }
   
   return (
@@ -65,19 +95,24 @@ const LoginPage = () => {
           <Card.Title className="mb-0">Acessar ClinicManager</Card.Title>
         </Card.Header>
         <Card.Body>
-          <p className="text-center text-muted">Use as credenciais de teste: <strong>admin@clinic.com</strong>, <strong>dr.joao@clinic.com</strong> ou <strong>paciente@email.com</strong> (Senha: 123)</p>
+          <p className="text-center text-muted">
+            Use as credenciais de teste: 
+            <br />
+            <strong>teste1@email.com</strong> (Senha: 12345678)
+          </p>
           
           {error && <Alert variant="danger">{error}</Alert>}
           
           <Form onSubmit={handleSubmit}>
             <Form.Group className="mb-3" controlId="formBasicEmail">
-              <Form.Label>E-mail</Form.Label>
+              <Form.Label>E-mail ou CPF</Form.Label>
               <Form.Control 
-                type="email" 
-                placeholder="Seu e-mail de acesso" 
-                value={email} 
-                onChange={(e) => setEmail(e.target.value)} 
+                type="text" 
+                placeholder="teste1@email.com" 
+                value={loginField} 
+                onChange={(e) => setLoginField(e.target.value)} 
                 required
+                autoFocus
               />
             </Form.Group>
 
@@ -85,9 +120,9 @@ const LoginPage = () => {
               <Form.Label>Senha</Form.Label>
               <Form.Control 
                 type="password" 
-                placeholder="Sua senha" 
-                value={password} 
-                onChange={(e) => setPassword(e.target.value)} 
+                placeholder="12345678" 
+                value={senha} 
+                onChange={(e) => setSenha(e.target.value)} 
                 required
               />
             </Form.Group>
@@ -98,10 +133,34 @@ const LoginPage = () => {
               className="w-100" 
               disabled={isSubmitting}
             >
-              {isSubmitting ? <Spinner animation="border" size="sm" /> : 'Entrar'}
+              {isSubmitting ? (
+                <>
+                  <Spinner animation="border" size="sm" className="me-2" />
+                  Entrando...
+                </>
+              ) : 'Entrar'}
             </Button>
           </Form>
           
+          {/* Debug info */}
+          <div className="mt-3 small text-muted">
+            <hr />
+            <p className="mb-1">
+              <strong>Para debug:</strong>
+            </p>
+            <button 
+              type="button" 
+              className="btn btn-sm btn-outline-secondary"
+              onClick={() => {
+                console.log('🔍 Debug info:');
+                console.log('Token:', localStorage.getItem('token'));
+                console.log('User:', JSON.parse(localStorage.getItem('user') || '{}'));
+                console.log('Estado do AuthContext:', { isAuthenticated, user, loading });
+              }}
+            >
+              Mostrar Info Debug
+            </button>
+          </div>
         </Card.Body>
       </Card>
     </Container>

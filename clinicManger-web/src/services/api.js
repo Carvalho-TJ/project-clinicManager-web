@@ -13,9 +13,13 @@ const api = axios.create({
 // Interceptor para adicionar token automático
 api.interceptors.request.use(
   (config) => {
-    const user = JSON.parse(localStorage.getItem('clinic_user') || '{}');
-    if (user?.token) {
-      config.headers.Authorization = `Bearer ${user.token}`;
+    // Busca o token da chave correta
+    const token = localStorage.getItem('token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+      console.log('✅ Token adicionado ao header:', token.substring(0, 20) + '...');
+    } else {
+      console.warn('⚠️ Token não encontrado no localStorage');
     }
     return config;
   },
@@ -36,26 +40,31 @@ export const pacienteAPI = {
   deleteEndereco: (id) => api.delete(`/paciente/enderecos/${id}`),
 };
 
+
+
 export const agendamentoAPI = {
-  // Tipos e especialidades
-  getTiposAtendimento: () => api.get('/tipos-atendimento'),
-  getEspecialidades: (tipo) => api.get('/especialidades', { params: { tipo } }),
-  getProfissionaisPorEspecialidade: (especialidade, tipo) => 
-    api.get(`/especialidades/${especialidade}/profissionais`, { params: { tipo } }),
+  // AGENDAMENTO COMPLETO (usa sua rota /completo)
+  criarAgendamento: (data) => api.post('/agendamentos/completo', data),
   
-  // Agenda
-  getDatasDisponiveis: (profissionalId, mes, ano) => 
-    api.get(`/agenda/profissional/${profissionalId}/datas`, { params: { mes, ano } }),
-  
-  getHorariosDisponiveis: (profissionalId, data) => 
-    api.get(`/agenda/profissional/${profissionalId}/horarios`, { params: { data } }),
-  
-  // Agendamento
-  criarAgendamento: (dados) => api.post('/agendamentos/completo', dados),
+  // AGENDAMENTOS DO PACIENTE
   getMeusAgendamentos: () => api.get('/agendamentos/meus-agendamentos'),
   getDetalhesAgendamento: (id) => api.get(`/agendamentos/${id}/detalhes`),
   cancelarAgendamento: (id) => api.put(`/agendamentos/${id}/cancelar`),
-};
+  
+  // FLUXO DE AGENDAMENTO
+  getEspecialidades: () => api.get('/especialidades'),
+  
+  getProfissionais: () => api.get('/profissionais'),
 
+  getProfissionaisPorEspecialidade: (especialidade) => 
+    api.get(`/especialidades/${especialidade}/profissionais`),
+  
+  // DATAS E HORÁRIOS
+  getDatasDisponiveis: (profissionalId, mes, ano) => 
+    api.get(`/agenda/profissional/${profissionalId}/datas?mes=${mes}&ano=${ano}`),
+  
+  getHorariosDisponiveis: (profissionalId, data) => 
+    api.get(`/agenda/profissional/${profissionalId}/horarios?data=${data}`)
+};
 
 export default api;

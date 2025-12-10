@@ -24,15 +24,20 @@ const PatientDashboard = () => {
   const carregarDados = async () => {
     setLoading(true);
     try {
+      console.log('🔍 Carregando dados do paciente...');
       // Carregar dados do paciente
       const pacienteResponse = await pacienteAPI.getMe();
+      console.log('✅ Dados do paciente:', pacienteResponse.data);
       setDadosPaciente(pacienteResponse.data);
 
       // Carregar agendamentos
+      console.log('🔍 Carregando agendamentos...');
       const agendamentosResponse = await agendamentoAPI.getMeusAgendamentos();
-      setAgendamentos(agendamentosResponse.data);
+      console.log('✅ Agendamentos:', agendamentosResponse.data);
+      setAgendamentos(agendamentosResponse.data || []);
     } catch (error) {
       console.error('Erro ao carregar dados:', error);
+      console.error('❌ Resposta do erro:', error.response?.data);
     } finally {
       setLoading(false);
     }
@@ -46,15 +51,24 @@ const PatientDashboard = () => {
     try {
       await agendamentoAPI.cancelarAgendamento(id);
       alert('Agendamento cancelado com sucesso!');
-      carregarDados(); // Recarrega os dados
+      carregarDados();
     } catch (error) {
       alert(error.response?.data?.error || 'Erro ao cancelar agendamento');
     }
   };
 
   const formatarData = (dataString) => {
-    const data = new Date(dataString);
-    return data.toLocaleDateString('pt-BR');
+    if (!dataString) return 'Não informada';
+    try {
+        const data = new Date(dataString);
+        if (isNaN(data.getTime())) {
+          return 'Data inválida';
+        }
+        return data.toLocaleDateString('pt-BR');
+      } catch (error) {
+        console.error('Erro ao formatar data:', error);
+        return 'Data inválida';
+      }
   };
 
   const formatarHora = (dataString) => {
