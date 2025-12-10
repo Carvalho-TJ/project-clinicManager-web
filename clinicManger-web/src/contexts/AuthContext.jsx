@@ -1,100 +1,116 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-
+import { authAPI } from '../services/api';
 // 1. Cria o Contexto
 const AuthContext = createContext();
 
-// Função de mock para simular a chamada à API de login
-const mockLoginAPI = async (credentials) => {
-  // Simula o delay da rede
-  await new Promise(resolve => setTimeout(resolve, 1000));
-  
-  // Lógica de autenticação simplificada (apenas para o frontend)
-  if (credentials.email === 'admin@clinic.com' && credentials.password === '123') {
-    return { 
-      id: 1, 
-      name: 'Admin Master', 
-      role: 'admin', 
-      token: 'mock-admin-token' 
-    };
-  }
-  if (credentials.email === 'dr.joao@clinic.com' && credentials.password === '123') {
-    return { 
-      id: 2, 
-      name: 'Dr. João Silva', 
-      role: 'professional', 
-      token: 'mock-prof-token' 
-    };
-  }
-  if (credentials.email === 'paciente@email.com' && credentials.password === '123') {
-    return { 
-      id: 3, 
-      name: 'Maria Paciente', 
-      role: 'patient', 
-      token: 'mock-patient-token' 
-    };
-  }
-
-  throw new Error('Credenciais inválidas. Tente novamente.');
-};
-
-// 2. Cria o Provedor do Contexto
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
   // Verifica se existe um usuário ou token no localStorage ao carregar a aplicação
   useEffect(() => {
-    const storedUser = localStorage.getItem('clinic_user');
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    }
-    setLoading(false);
+    checkAuth();
   }, []);
 
-  // Função para lidar com o login
-  const login = async (credentials) => {
-    setLoading(true);
+  // Função para verificar autenticação
+  const checkAuth = async () => {
     try {
-      const userData = await mockLoginAPI(credentials);
+      const token = localStorage.getItem('token');
+      const userStr = localStorage.getItem('user');
       
-      // Armazena no estado e no localStorage (necessário para persistir o login ao recarregar)
-      setUser(userData);
-      localStorage.setItem('clinic_user', JSON.stringify(userData));
-      
-      setLoading(false);
-      return userData;
-
+      if (token && userStr) {
+        const userData = JSON.parse(userStr);
+        setUser(userData);
+        console.log('✅ Usuário recuperado:', userData);
+      }
     } catch (error) {
-      setUser(null);
-      localStorage.removeItem('clinic_user');
-      setLoading(false);
-      throw error;
+      console.error('Erro ao verificar autenticação:', error);
+      logout();
+    } finally {
+       setLoading(false);
     }
   };
 
-  // Função para lidar com o logout
-  const logout = () => {
+
+// Função de mock para simular a chamada à API de login
+
+const login = async (credentials) => {
+  setLoading(true);
+  try {
+    // Usar a API real
+    const response = await authAPI.login({
+      login: credentials.email,  
+      senha: credentials.senha
+    });
+
+    console.log('✅ Resposta do login:', response.data);
+    
+    // Converter user_type do backend para role do frontend
+    const userTypeMap = {
+      'paciente': 'patient',
+      'profissional': 'professional',
+      'admin': 'admin'
+    };
+
+    const userData = {
+      id: response.data.user_id,
+      name: response.data.nome,
+      role: userTypeMap[response.data.user_type] || response.data.user_type,
+      token: response.data.access_token,
+      email: credentials.email
+    };
+    
+    // Armazenar
+    setUser(userData);
+    localStorage.setItem('token', response.data.access_token);
+    localStorage.setItem('user', JSON.stringify(userData));
+    
+    console.log('📱 Dados salvos:', userData);
+    
+    setLoading(false);
+    return userData;
+    
+  } catch (error) {
+    console.error('❌ Erro no login:', error);
     setUser(null);
-    localStorage.removeItem('clinic_user');
-  };
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    setLoading(false);
+    
+    // Extrair mensagem de erro da API
+    const errorMessage = error.response?.data?.error || 
+                        error.message || 
+                        'Credenciais inválidas. Tente novamente.';
+    throw new Error(errorMessage);
+  }
+};
+  
+// Função para lidar com o logout
+const logout = () => {
+  setUser(null);
+  localStorage.removeItem('token');
+  localStorage.removeItem('user');
+  window.location.href = '/'; // Redireciona para home
+};
 
-  const value = {
-    user,
-    isAuthenticated: !!user, // Booleano: true se user não for null
-    isAdmin: user?.role === 'admin',
-    isProfessional: user?.role === 'professional',
-    isPatient: user?.role === 'patient',
-    loading,
-    login,
-    logout,
-  };
+const value = {
+  user,
+  isAuthenticated: !!user, // Booleano: true se user não for null
+  isAdmin: user?.role === 'admin',
+  isProfessional: user?.role === 'professional',
+  isPatient: user?.role === 'patient',
+  loading,
+  login,
+  logout,
+  checkAuth
+};
 
-  // O provedor compartilha o objeto 'value' com os componentes filhos
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
+// O provedor compartilha o objeto 'value' com os componentes filhos
+return (
+  <AuthContext.Provider value={value}>
+    {children}
+  </AuthContext.Provider>
+);
 }
 
 // 3. Cria um Hook Customizado para consumo
