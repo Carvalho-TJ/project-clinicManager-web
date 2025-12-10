@@ -10,8 +10,10 @@ import ProfessionalAgenda from './pages/Professional/ProfessionalAgenda';
 import PatientDashboard from './pages/Patient/PatientDashboard';
 import PublicLayout from './components/Layout/PublicLayout';
 import HomePage from './pages/HomePage/HomePage';
-import SobrePage from './pages/SobrePage/SobrePage'
-import AgendarPage from './pages/AgendarPage/AgendarPage'
+import SobrePage from './pages/SobrePage/SobrePage';
+import AgendarPage from './pages/AgendarPage/AgendarPage';
+import ProfessionalLogin from './pages/Professional/ProfessionalLogin';
+import ProfessionalDashboard from './pages/Professional/ProfessionalDashboard';
 
 function App() {
   return (
@@ -24,6 +26,7 @@ function App() {
         </Route>
 
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/prof/login" element={<ProfessionalLogin />} />
 
         <Route element={<MainLayout />}>
           <Route 
@@ -38,14 +41,17 @@ function App() {
             path="/patient/dashboard" 
             element={<ProtectedRoute allowedRoles={['patient']}><PatientDashboard /></ProtectedRoute>} 
           />
-          <Route path="/" element={<Navigate to="/login" replace />} />
+          {/* <Route path="/" element={<Navigate to="/login" replace />} /> */}
           <Route 
             path="/agendar-consulta" 
             element={<ProtectedRoute allowedRoles={['patient']}><AgendarPage /></ProtectedRoute>} 
-          />
-          
-        </Route>
-    
+          />   
+          <Route 
+            path="/prof/dashboard" 
+            element={<ProtectedRoute allowedRoles={['professional']}><ProfessionalDashboard /></ProtectedRoute>} 
+          />          
+        </Route>    
+        <Route path="/" element={<Navigate to="/login" replace />} /> 
         
         <Route path="*" element={<h1>Página Não Encontrada (404)</h1>} />
       </Routes>

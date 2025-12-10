@@ -175,7 +175,7 @@ adminRoutes.post('/', async (req, res) => {
             
             // Criar usuário
             const userSql = `
-                INSERT INTO usuario (login, senha_hash, tipo, ativo)
+                INSERT INTO usuario (login, senha_hash, ativo)
                 VALUES (?, ?, 'profissional', TRUE)
             `;
             const [userResult] = await connection.execute(userSql, [login, senhaHash]);
@@ -216,8 +216,7 @@ adminRoutes.post('/', async (req, res) => {
                 dados: {
                     nome,
                     especialidade,
-                    crm,
-                    tipo_atendimento
+                    crm
                 }
             });
             
@@ -285,7 +284,6 @@ adminRoutes.put('/:id', async (req, res) => {
             crm || null,
             telefone || null,
             email || null,
-            tipo_atendimento || 'medicina',
             profissionalId
         ]);
         

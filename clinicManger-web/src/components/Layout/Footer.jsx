@@ -55,7 +55,7 @@ const Footer = () => {
                         <h5 className="mb-3">Acessos</h5>
                         <ul className="list-unstyled">
                             {/* Redirecionamento para a página de login com perfis específicos */}
-                            <li><Link to="/login" className="text-white text-decoration-none" style={{ opacity: 0.8 }}>Portal do Profissional</Link></li>
+                            <li><Link to="/prof/login" className="text-white text-decoration-none" style={{ opacity: 0.8 }}>Portal do Profissional</Link></li>
                             <li><Link to="/login" className="text-white text-decoration-none" style={{ opacity: 0.8 }}>Portal Administrativo</Link></li>
                         </ul>
                     </Col>

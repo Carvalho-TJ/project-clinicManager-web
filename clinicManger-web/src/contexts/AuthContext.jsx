@@ -29,11 +29,12 @@ export function AuthProvider({ children }) {
     }
   };
 
-  /*const login = async (credentials) => {
+  const login = async (credentials) => {
     setLoading(true);
     try {
+      // 🔹 Envia { login, senha } como o backend espera
       const response = await authAPI.login({
-        login: credentials.email,
+        login: credentials.login,
         senha: credentials.senha
       });
 
@@ -50,7 +51,7 @@ export function AuthProvider({ children }) {
         name: response.data.nome,
         role: userTypeMap[response.data.user_type] || response.data.user_type,
         token: response.data.access_token,
-        email: credentials.email
+        email: response.data.email || null
       };
       
       setUser(userData);
@@ -74,7 +75,7 @@ export function AuthProvider({ children }) {
                           'Credenciais inválidas. Tente novamente.';
       throw new Error(errorMessage);
     }
-  };*/
+  };
   
   const logout = () => {
     setUser(null);
@@ -92,7 +93,8 @@ export function AuthProvider({ children }) {
     isPatient: user?.role === 'patient',
     loading,
     logout,
-    checkAuth
+    checkAuth,
+    login
   };
 
   return (
