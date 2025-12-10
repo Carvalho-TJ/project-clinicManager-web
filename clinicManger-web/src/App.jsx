@@ -5,7 +5,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'; // <-
 import MainLayout from './components/Layout/MainLayout';
 import LoginPage from './pages/Auth/LoginPage'; 
 import ProtectedRoute from './components/Auth/ProtectedRoute'; 
-import AdminDashboard from './pages/Admin/AdminDashboard'; 
+import AdminDashboard from './pages/AdminPage/AdminDashboard'; 
 import ProfessionalAgenda from './pages/Professional/ProfessionalAgenda';
 import PatientDashboard from './pages/Patient/PatientDashboard';
 import PublicLayout from './components/Layout/PublicLayout';
@@ -21,6 +21,8 @@ function App() {
         <Route element={<PublicLayout />}>
              <Route path="/" element={<HomePage />} />
              <Route path="/sobre-nos" element={<SobrePage />} />
+             <Route path="/admin/dashboard" element={<AdminDashboard />} />
+             <Route path="/PatientDashboard" element={<PatientDashboard />} />
         </Route>
 
         <Route path="/login" element={<LoginPage />} />
