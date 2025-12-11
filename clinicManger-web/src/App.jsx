@@ -23,6 +23,7 @@ function App() {
         <Route element={<PublicLayout />}>
              <Route path="/" element={<HomePage />} />
              <Route path="/sobre-nos" element={<SobrePage />} />
+             <Route path="/admin/dashboard" element={<AdminDashboard />} />
         </Route>
 
         <Route path="/admin/login" element={<AdminLogin />} />

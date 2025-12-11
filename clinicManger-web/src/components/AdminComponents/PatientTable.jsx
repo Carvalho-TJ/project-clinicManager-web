@@ -45,7 +45,7 @@ const TableActionIcon = ({ icon, onClick, color, title }) => (
   </span>
 );
 
-const PatientTable = ({ patients = mockPatients, onEditClick, onDeleteClick }) => {
+const PatientTable = ({ patients = mockPatients, onEditClick, onDeleteClick, onViewRecordClick }) => {
   const tableHeaderStyle = {
     backgroundColor: PRIMARY_COLOR,
     color: 'white',
@@ -90,7 +90,7 @@ const PatientTable = ({ patients = mockPatients, onEditClick, onDeleteClick }) =
                 />
                 <TableActionIcon 
                     icon={<BsFileEarmarkText />} 
-                    onClick={() => handleView(patient.id)} 
+                    onClick={() => onViewRecordClick(patient)} 
                     color="#4a4a4a" 
                     title="Visualizar Prontuário"
                 />

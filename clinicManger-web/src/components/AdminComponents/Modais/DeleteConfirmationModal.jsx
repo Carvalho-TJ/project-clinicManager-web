@@ -1,4 +1,3 @@
-// src/components/DeleteConfirmationModal.jsx
 import React from 'react';
 import { Modal, Button } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -19,7 +18,6 @@ const DeleteConfirmationModal = ({ show, handleClose, handleConfirm, entityName,
     <Modal show={show} onHide={handleClose} centered>
       <Modal.Header 
         closeButton
-        // Cor primária no header, mas usaremos um fundo branco para modals de alerta simples
         style={{ borderBottom: 'none' }} 
       >
         <Modal.Title className="fw-bold d-flex align-items-center">
@@ -30,7 +28,7 @@ const DeleteConfirmationModal = ({ show, handleClose, handleConfirm, entityName,
       
       <Modal.Body className="py-4">
         <p>
-          Você tem certeza que deseja excluir o(a) **{entityName}** **{itemName}**?
+          Você tem certeza que deseja excluir o(a) {entityName} {itemName}?
         </p>
         <p className="text-danger fw-bold">
           Esta ação é irreversível.
@@ -38,7 +36,6 @@ const DeleteConfirmationModal = ({ show, handleClose, handleConfirm, entityName,
       </Modal.Body>
       
       <Modal.Footer className="border-top-0 d-flex justify-content-end">
-        {/* Botão Cancelar (Cinza Claro) */}
         <Button 
           variant="light" 
           className="text-dark fw-bold px-4 py-2"
@@ -48,7 +45,6 @@ const DeleteConfirmationModal = ({ show, handleClose, handleConfirm, entityName,
           Cancelar
         </Button>
 
-        {/* Botão Excluir (Vermelho Padrão) */}
         <Button 
           variant="danger" 
           type="button" 
