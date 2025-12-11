@@ -273,7 +273,7 @@ const AuthModal = ({ show, handleClose }) => {
                 window.location.href = '/patient/dashboard';
             } else if (response.data.user_type === 'profissional') {
                 console.log('👨‍⚕️ É profissional, redirecionando para agenda...');
-                window.location.href = '/prof/agenda';
+                window.location.href = '/prof/dashboard';
             } else if (response.data.user_type === 'admin') {
                 console.log('👑 É admin, redirecionando para dashboard...');
                 window.location.href = '/admin/dashboard';

@@ -3,7 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'; // <-
 
 // IMPORTAÇÕES DOS COMPONENTES
 import MainLayout from './components/Layout/MainLayout';
-import LoginPage from './pages/Auth/LoginPage'; 
+import AdminLogin from './pages/Auth/AdminLogin'; 
 import ProtectedRoute from './components/Auth/ProtectedRoute'; 
 import AdminDashboard from './pages/AdminPage/AdminDashboard'; 
 import ProfessionalAgenda from './pages/Professional/ProfessionalAgenda';
@@ -13,7 +13,7 @@ import HomePage from './pages/HomePage/HomePage';
 import SobrePage from './pages/SobrePage/SobrePage';
 import AgendarPage from './pages/AgendarPage/AgendarPage';
 import ProfessionalLogin from './pages/Professional/ProfessionalLogin';
-import ProfessionalDashboard from './pages/Professional/ProfessionalDashboard';
+import ProfessionalPatients from './pages/Professional/ProfessionalPatients';
 
 function App() {
   return (
@@ -23,14 +23,15 @@ function App() {
         <Route element={<PublicLayout />}>
              <Route path="/" element={<HomePage />} />
              <Route path="/sobre-nos" element={<SobrePage />} />
-             <Route path="/admin/dashboard" element={<AdminDashboard />} />
-             <Route path="/PatientDashboard" element={<PatientDashboard />} />
+             {/* <Route path="/admin/dashboard" element={<AdminDashboard />} /> */}
+             {/* <Route path="/PatientDashboard" element={<PatientDashboard />} /> */}
         </Route>
 
-        <Route path="/login" element={<LoginPage />} />
+        <Route path="/admin/login" element={<AdminLogin />} />
         <Route path="/prof/login" element={<ProfessionalLogin />} />
 
         <Route element={<MainLayout />}>
+            
           <Route 
             path="/admin/dashboard" 
             element={<ProtectedRoute allowedRoles={['admin']}><AdminDashboard /></ProtectedRoute>} 
@@ -50,10 +51,11 @@ function App() {
           />   
           <Route 
             path="/prof/dashboard" 
-            element={<ProtectedRoute allowedRoles={['professional']}><ProfessionalDashboard /></ProtectedRoute>} 
-          />          
+            element={<ProtectedRoute allowedRoles={['professional']}><ProfessionalPatients /></ProtectedRoute>} 
+          />  
+             
         </Route>    
-        <Route path="/" element={<Navigate to="/login" replace />} /> 
+        {/* <Route path="/" element={<Navigate to="/login" replace />} />  */}
         
         <Route path="*" element={<h1>Página Não Encontrada (404)</h1>} />
       </Routes>
