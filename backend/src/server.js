@@ -9,6 +9,8 @@ const agendamentoRoutes = require('./api/agendamentoRoutes');
 const especialidadeRoutes = require('./api/especialidadeRoutes');
 const tipoAtendimentoRoutes = require('./api/tipoAtendimentoRoutes');
 const agendaRoutes = require('./api/agendaRoutes');
+const profissionalRoutes = require('./api/profissionalRoutes');
+
 
 // Criar aplicação Express
 const app = express();
@@ -56,6 +58,7 @@ app.use('/api/agendamentos', agendamentoRoutes);
 app.use('/api/especialidades', especialidadeRoutes);
 app.use('/api/tipos-atendimento', tipoAtendimentoRoutes);
 app.use('/api/agenda', agendaRoutes);
+app.use('/api/profissionais', profissionalRoutes);
 
 
 // Middleware de tratamento de erros

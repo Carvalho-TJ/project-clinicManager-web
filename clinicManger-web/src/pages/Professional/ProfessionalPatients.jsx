@@ -1,93 +1,45 @@
-// src/pages/ProfessionalDashboard.jsx
+// src/pages/ProfessionalPatients.jsx
 import React, { useState } from "react";
 import Logo from "../../assets/logo.png";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 
-import ConsultaItem from "../../components/ConsultaItem";
-import ModalReagendar from "../../components/modals/ModalReagendar";
+import PacienteItem from "../../components/PacienteItem";
+import ModalAtendimento from "../../components/modals/ModalAtendimento";
 import ModalPerfil from "../../components/modals/ModalPerfil";
 
-export default function ProfessionalDashboard() {
+export default function ProfessionalPatients() {
   const navigate = useNavigate();
   const { user } = useAuth();
 
-  const [modalReagendar, setModalReagendar] = useState(null);
+  const [modalAtendimento, setModalAtendimento] = useState(null);
   const [modalPerfil, setModalPerfil] = useState(false);
   const [menuAberto, setMenuAberto] = useState(false);
 
-  // Consultas simuladas
-  const [consultas, setConsultas] = useState([
+  // Pacientes simulados
+  const pacientes = [
     {
       id: 1,
       nome: "Ana Silva",
-      status: "Pendente",
-      statusColor: "#f7e48b",
-      data: "09/12/2025",
-      hora: "09:00",
-      especialidade: "Odontologia",
-      procedimento: "Limpeza Dental",
-      podeEditar: false,
-      mostrarAcoes: true,
+      email: "ana@email.com",
+      telefone: "(92) 99123-4567",
+      nascimento: "14/05/1990",
     },
     {
       id: 2,
       nome: "Carlos Souza",
-      status: "Confirmada",
-      statusColor: "#b5f5c8",
-      data: "09/12/2025",
-      hora: "10:30",
-      especialidade: "Odontologia",
-      procedimento: "Ortodontia",
-      podeEditar: true,
-      mostrarAcoes: true,
+      email: "carlos@email.com",
+      telefone: "(92) 99234-5678",
+      nascimento: "21/08/1985",
     },
     {
       id: 3,
       nome: "Maria Santos",
-      status: "Pendente",
-      statusColor: "#f7e48b",
-      data: "10/12/2025",
-      hora: "14:00",
-      especialidade: "Odontologia",
-      procedimento: "Implante Dentário",
-      podeEditar: false,
-      mostrarAcoes: true,
+      email: "maria@email.com",
+      telefone: "(92) 99144-9708",
+      nascimento: "22/10/1989",
     },
-  ]);
-
-  // Funções de ação
-  function confirmarConsulta(id) {
-    setConsultas((lista) =>
-      lista.map((c) =>
-        c.id === id
-          ? {
-              ...c,
-              status: "Confirmada",
-              statusColor: "#b5f5c8",
-              podeEditar: true,
-              mostrarAcoes: false,
-            }
-          : c
-      )
-    );
-  }
-
-  function cancelarConsulta(id) {
-    setConsultas((lista) =>
-      lista.map((c) =>
-        c.id === id
-          ? {
-              ...c,
-              status: "Cancelada",
-              statusColor: "#f8b4b4",
-              podeEditar: false,
-              mostrarAcoes: false,
-            }
-          : c
-      )
-    );
-  }
+  ];
 
   return (
     <div style={{ backgroundColor: "#fafafa", minHeight: "100vh" }}>
@@ -154,7 +106,6 @@ export default function ProfessionalDashboard() {
 
       {/* Conteúdo */}
       <div style={{ padding: "20px 40px" }}>
-
         {/* Título */}
         <div
           style={{
@@ -166,10 +117,10 @@ export default function ProfessionalDashboard() {
             fontWeight: "bold",
           }}
         >
-          Consultas Agendadas
+          Meus Pacientes
         </div>
 
-        {/* Listagem de consultas */}
+        {/* Listagem de pacientes */}
         <div
           style={{
             background: "#fff",
@@ -178,23 +129,21 @@ export default function ProfessionalDashboard() {
             boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
           }}
         >
-          {consultas.map((c) => (
-            <ConsultaItem
-              key={c.id}
-              {...c}
-              onEdit={() => setModalReagendar(c)}
-              onConfirm={() => confirmarConsulta(c.id)}
-              onCancel={() => cancelarConsulta(c.id)}
+          {pacientes.map((p) => (
+            <PacienteItem
+              key={p.id}
+              {...p}
+              onAtender={() => setModalAtendimento(p)}
             />
           ))}
         </div>
       </div>
 
       {/* Modais */}
-      {modalReagendar && (
-        <ModalReagendar
-          consulta={modalReagendar}
-          onClose={() => setModalReagendar(null)}
+      {modalAtendimento && (
+        <ModalAtendimento
+          paciente={modalAtendimento}
+          onClose={() => setModalAtendimento(null)}
         />
       )}
 
