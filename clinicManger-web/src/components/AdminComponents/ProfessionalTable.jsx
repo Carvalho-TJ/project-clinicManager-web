@@ -44,7 +44,7 @@ const TableActionIcon = ({ icon, onClick, color }) => (
   </span>
 );
 
-const ProfessionalTable = ({ professionals = mockProfessionals }) => {
+const ProfessionalTable = ({ professionals = mockProfessionals, onEditClick }) => {
   const tableHeaderStyle = {
     backgroundColor: PRIMARY_COLOR,
     color: 'white',
@@ -80,13 +80,15 @@ const ProfessionalTable = ({ professionals = mockProfessionals }) => {
               <td className="px-3 text-center">
                 <TableActionIcon 
                     icon={<BsPencilSquare />} 
-                    onClick={() => handleEdit(prof.id)} 
-                    color= {PRIMARY_COLOR} 
+                    onClick={() => onEditClick(prof)} 
+                    color= {PRIMARY_COLOR}
+                    title="Editar Profissional" 
                 />
                 <TableActionIcon 
                     icon={<BsTrash />} 
                     onClick={() => handleDelete(prof.id)} 
                     color="#dc3545"
+                    title="Excluir Profissional"
                 />
               </td>
             </tr>

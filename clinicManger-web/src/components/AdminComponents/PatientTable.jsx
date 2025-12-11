@@ -34,27 +34,23 @@ const mockPatients = [
   },
 ];
 
-const TableActionIcon = ({ icon, onClick, color }) => (
+const TableActionIcon = ({ icon, onClick, color, title }) => (
   <span 
     className="me-2" 
     style={{ cursor: 'pointer', color: color, transition: 'color 0.1s' }}
     onClick={onClick}
-    title={color === '#6a1b9a' ? 'Editar' : 'Excluir'}
+    title={title}
   >
     {icon}
   </span>
 );
 
-const PatientTable = ({ patients = mockPatients }) => {
+const PatientTable = ({ patients = mockPatients, onEditClick, onDeleteClick }) => {
   const tableHeaderStyle = {
     backgroundColor: PRIMARY_COLOR,
     color: 'white',
     fontSize: '0.95rem',
   };
-
-  const handleEdit = (id) => console.log(`Editar paciente: ${id}`);
-  const handleDelete = (id) => console.log(`Excluir paciente: ${id}`);
-  const handleView = (id) => console.log(`Visualizar prontuário: ${id}`);
 
   return (
     <div className="table-responsive">
@@ -82,18 +78,21 @@ const PatientTable = ({ patients = mockPatients }) => {
               <td className="px-3 text-center d-flex justify-content-center">
                 <TableActionIcon 
                     icon={<BsPencilSquare />} 
-                    onClick={() => handleEdit(patient.id)} 
-                    color="#6a1b9a" 
+                    onClick={() => onEditClick(patient)} 
+                    color= {PRIMARY_COLOR}
+                    title="Editar Paciente"
                 />
                 <TableActionIcon 
                     icon={<BsTrash />} 
-                    onClick={() => handleDelete(patient.id)} 
-                    color="#dc3545"
+                    onClick={() => onDeleteClick(patient)}
+                    color="#dc3545" 
+                    title="Excluir Paciente"
                 />
                 <TableActionIcon 
                     icon={<BsFileEarmarkText />} 
                     onClick={() => handleView(patient.id)} 
-                    color="#4a4a4a"
+                    color="#4a4a4a" 
+                    title="Visualizar Prontuário"
                 />
               </td>
             </tr>

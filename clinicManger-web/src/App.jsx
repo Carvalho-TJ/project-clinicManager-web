@@ -23,8 +23,6 @@ function App() {
         <Route element={<PublicLayout />}>
              <Route path="/" element={<HomePage />} />
              <Route path="/sobre-nos" element={<SobrePage />} />
-             {/* <Route path="/admin/dashboard" element={<AdminDashboard />} /> */}
-             {/* <Route path="/PatientDashboard" element={<PatientDashboard />} /> */}
         </Route>
 
         <Route path="/admin/login" element={<AdminLogin />} />
