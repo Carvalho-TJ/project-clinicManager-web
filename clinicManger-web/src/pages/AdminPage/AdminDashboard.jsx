@@ -8,6 +8,9 @@ import ManagementHeader from '../../components/AdminComponents/ManagementHeader'
 import PatientTable from '../../components/AdminComponents/PatientTable';
 import ProfessionalTable from '../../components/AdminComponents/ProfessionalTable';
 import NewRegistrationModal from '../../components/AdminComponents/Modais/NewRegistrationModal';
+import EditPatientModal from '../../components/AdminComponents/Modais/EditPatientModal';
+import EditProfessionalModal from '../../components/AdminComponents/Modais/EditProfessionalModal';
+import DeleteConfirmationModal from '../../components/AdminComponents/Modais/DeleteConfirmationModal';
 
 // Dados de exemplo para simular o filtro
 const mockPatients = [
@@ -28,6 +31,19 @@ const AdminPage = () => {
 
     const [showModal, setShowModal] = useState(false);
     const [modalType, setModalType] = useState('patient');
+
+    // ESTADOS PARA EDIÇÃO DE PACIENTE
+    const [showEditModal, setShowEditModal] = useState(false);
+    const [patientToEdit, setPatientToEdit] = useState(null);
+
+    // ESTADOS PARA EDIÇÃO DE PROFISSIONAL
+    const [showEditProfModal, setShowEditProfModal] = useState(false);
+    const [professionalToEdit, setProfessionalToEdit] = useState(null);
+
+    // ESTADOS PARA EXCLUSÃO
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [itemToDelete, setItemToDelete] = useState(null); // Armazena o objeto (paciente/profissional) a ser excluído
+    const [entityType, setEntityType] = useState(''); // 'Paciente' ou 'Profissional'
     
     // Lógica de filtro para Pacientes
     const filteredPatients = useMemo(() => {
@@ -51,6 +67,57 @@ const AdminPage = () => {
         );
     }, [searchTerm, activeTab]);
 
+    // FUNÇÃO PARA ABRIR O MODAL DE EDIÇÃO PACIENTE
+    const handleEditPatient = (patient) => {
+        setPatientToEdit(patient); 
+        setShowEditModal(true);    
+    };
+    
+    // FUNÇÃO PARA FECHAR O MODAL DE EDIÇÃO PACIENTE
+    const handleCloseEditModal = () => {
+        setShowEditModal(false);
+        setPatientToEdit(null);
+    };
+
+    // FUNÇÃO PARA ABRIR O MODAL DE EDIÇÃO DE PROFISSIONAL
+    const handleEditProfessional = (professional) => {
+        setProfessionalToEdit(professional);
+        setShowEditProfModal(true);
+    };
+    
+    // FUNÇÃO PARA FECHAR O MODAL DE EDIÇÃO DE PROFISSIONAL
+    const handleCloseEditProfModal = () => {
+        setShowEditProfModal(false);
+        setProfessionalToEdit(null); 
+    };
+
+    // FUNÇÃO PARA ABRIR O MODAL DE EXCLUSÃO
+    const handleDeleteClick = (item, type) => {
+        setItemToDelete(item);
+        setEntityType(type);
+        setShowDeleteModal(true);
+    };
+
+    // FUNÇÃO PARA FECHAR O MODAL DE EXCLUSÃO
+    const handleCloseDeleteModal = () => {
+        setShowDeleteModal(false);
+        setItemToDelete(null);
+        setEntityType('');
+    };
+    
+    // FUNÇÃO PARA CONFIRMAR A EXCLUSÃO
+    const handleConfirmDelete = () => {
+        if (!itemToDelete) return;
+
+        console.log(`Exclusão confirmada para o(a) ${entityType}: ID ${itemToDelete.id}, Nome: ${itemToDelete.nome}`);
+        
+        // **AQUI ENTRA A LÓGICA REAL DE EXCLUSÃO (API)**
+        
+        alert(`O(A) ${entityType} ${itemToDelete.nome} seria excluído(a) do sistema.`);
+        
+        handleCloseDeleteModal();
+    };
+
     // Função que é chamada ao clicar em "Novo Paciente/Profissional"
     const handleNewAction = () => {
         setModalType(activeTab === 'patients' ? 'patient' : 'professional');
@@ -58,6 +125,10 @@ const AdminPage = () => {
     };
 
     const handleCloseModal = () => setShowModal(false);
+
+    // FUNÇÕES DE EXCLUSÃO
+    const deletePatientHandler = (patient) => handleDeleteClick(patient, 'Paciente');
+    const deleteProfessionalHandler = (professional) => handleDeleteClick(professional, 'Profissional');
 
     return (
         <div className="admin-page-container bg-light min-vh-100">
@@ -77,18 +148,56 @@ const AdminPage = () => {
                 {/* 4. Renderização Condicional da Tabela */}
                 <div className="mt-4">
                     {activeTab === 'patients' ? (
-                        <PatientTable patients={filteredPatients} />
+                        <PatientTable 
+                            patients={filteredPatients}
+                            onEditClick={handleEditPatient}
+                            onDeleteClick={deletePatientHandler} 
+                        />
                     ) : (
-                        <ProfessionalTable professionals={filteredProfessionals} />
+                        <ProfessionalTable
+                            professionals={filteredProfessionals}
+                            onEditClick={handleEditProfessional}
+                            onDeleteClick={deleteProfessionalHandler}
+                        />
                     )}
                 </div>
             </div>
 
+           {/* 1. MODAL DE NOVO CADASTRO */}
             <NewRegistrationModal
                 show={showModal}
                 handleClose={handleCloseModal}
                 type={modalType}
             />
+            
+            {/* 2. MODAL DE EDIÇÃO DE PACIENTE */}
+            {patientToEdit && (
+                <EditPatientModal
+                    show={showEditModal}
+                    handleClose={handleCloseEditModal}
+                    patientData={patientToEdit}
+                />
+            )}
+
+            {/* 3. MODAL DE EDIÇÃO DE PROFISSIONAL */}
+            {professionalToEdit && (
+                <EditProfessionalModal
+                    show={showEditProfModal}
+                    handleClose={handleCloseEditProfModal}
+                    professionalData={professionalToEdit}
+                />
+            )}
+
+            {/* 4. MODAL DE CONFIRMAÇÃO DE EXCLUSÃO */}
+            {itemToDelete && (
+                <DeleteConfirmationModal
+                    show={showDeleteModal}
+                    handleClose={handleCloseDeleteModal}
+                    handleConfirm={handleConfirmDelete}
+                    entityName={entityType}
+                    itemName={itemToDelete.nome}
+                />
+            )}
 
         </div>
     );
