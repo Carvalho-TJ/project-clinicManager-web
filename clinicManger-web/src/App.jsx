@@ -12,7 +12,6 @@ import PublicLayout from './components/Layout/PublicLayout';
 import HomePage from './pages/HomePage/HomePage';
 import SobrePage from './pages/SobrePage/SobrePage';
 import AgendarPage from './pages/AgendarPage/AgendarPage';
-import AtendimentoPage from './pages/TipoAtendimentoPage/TipoAtendimentoPage';
 import ProfessionalLogin from './pages/Professional/ProfessionalLogin';
 import ProfessionalDashboard from './pages/Professional/ProfessionalDashboard';
 
