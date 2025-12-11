@@ -6,17 +6,16 @@ const AuthMiddleware = require('../middleware/auth');
 // Criar agendamento completo (todas as etapas)
 router.post('/completo', AuthMiddleware.verificarToken, async (req, res) => {
     try {
-        const pacienteId = req.usuario.sub;
+        const pacienteId = req.usuario.id;
         const {
             id_profissional,
             data_hora,
-            tipo_atendimento,
             especialidade,
             duracao_min = 30
         } = req.body;
         
         // Validações
-        if (!id_profissional || !data_hora || !tipo_atendimento || !especialidade) {
+        if (!id_profissional || !data_hora || !especialidade) {
             return res.status(400).json({ 
                 error: 'Todos os campos são obrigatórios' 
             });
@@ -27,13 +26,11 @@ router.post('/completo', AuthMiddleware.verificarToken, async (req, res) => {
             SELECT * FROM profissional 
             WHERE id_profissional = ? 
             AND especialidade = ?
-            AND tipo_atendimento = ?
             AND deleted_at IS NULL
         `;
         const [profissional] = await db.query(profissionalSql, [
             id_profissional, 
-            especialidade, 
-            tipo_atendimento
+            especialidade
         ]);
         
         if (!profissional) {
@@ -70,16 +67,14 @@ router.post('/completo', AuthMiddleware.verificarToken, async (req, res) => {
         // Cria o agendamento
         const insertSql = `
             INSERT INTO agendamento 
-            (id_paciente, id_profissional, data_hora, duracao_min, tipo_atendimento, especialidade, status, criado_por)
-            VALUES (?, ?, ?, ?, ?, ?, 'solicitado', ?)
+            (id_paciente, id_profissional, data_hora, duracao_min, status, criado_por)
+            VALUES (?, ?, ?, ?, 'solicitado', ?)
         `;
         const result = await db.query(insertSql, [
             pacienteId,
             id_profissional,
             data_hora,
             duracao_min,
-            tipo_atendimento,
-            especialidade,
             pacienteId
         ]);
         
@@ -91,8 +86,7 @@ router.post('/completo', AuthMiddleware.verificarToken, async (req, res) => {
                 p.email as paciente_email,
                 p.telefone as paciente_telefone,
                 prof.nome as profissional_nome,
-                prof.especialidade,
-                prof.tipo_atendimento
+                prof.especialidade
             FROM agendamento a
             JOIN paciente p ON a.id_paciente = p.id_paciente
             JOIN profissional prof ON a.id_profissional = prof.id_profissional
@@ -108,7 +102,6 @@ router.post('/completo', AuthMiddleware.verificarToken, async (req, res) => {
                 data_hora: agendamento.data_hora,
                 duracao_min: agendamento.duracao_min,
                 status: agendamento.status,
-                tipo_atendimento: agendamento.tipo_atendimento,
                 especialidade: agendamento.especialidade,
                 profissional: {
                     nome: agendamento.profissional_nome,
@@ -136,7 +129,7 @@ router.post('/completo', AuthMiddleware.verificarToken, async (req, res) => {
 router.get('/:id/detalhes', AuthMiddleware.verificarToken, async (req, res) => {
     try {
         const agendamentoId = parseInt(req.params.id);
-        const pacienteId = req.usuario.sub;
+        const pacienteId = req.usuario.id;
         
         const sql = `
             SELECT 
@@ -156,7 +149,6 @@ router.get('/:id/detalhes', AuthMiddleware.verificarToken, async (req, res) => {
                 e.complemento,
                 prof.nome as profissional_nome,
                 prof.especialidade,
-                prof.tipo_atendimento,
                 prof.crm,
                 COALESCE(prof.preco_consulta, 0) as preco_consulta
             FROM agendamento a
@@ -186,9 +178,53 @@ router.get('/:id/detalhes', AuthMiddleware.verificarToken, async (req, res) => {
             hora: dataHora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
         };
         
-        router.get('/meus-agendamentos', AuthMiddleware.verificarToken, AuthMiddleware.verificarPaciente, async (req, res) => {
+        // Formata o endereço
+        const enderecoFormatado = agendamento.rua ? 
+            `${agendamento.rua}, ${agendamento.numero} - ${agendamento.bairro}\n${agendamento.cidade} - ${agendamento.estado}\nCEP: ${agendamento.cep}` :
+            'Endereço não cadastrado';
+        
+        const resposta = {
+            agendamento: {
+                id: agendamento.id_agendamento,
+                data_hora: agendamento.data_hora,
+                data_formatada: dataFormatada,
+                duracao_min: agendamento.duracao_min,
+                status: agendamento.status,
+                especialidade: agendamento.especialidade,
+                preco_consulta: agendamento.preco_consulta
+            },
+            paciente: {
+                nome: agendamento.paciente_nome,
+                cpf: agendamento.cpf,
+                email: agendamento.paciente_email,
+                telefone: agendamento.paciente_telefone,
+                data_nasc: agendamento.data_nasc,
+                estado_civil: agendamento.estado_civil,
+                endereco: enderecoFormatado
+            },
+            profissional: {
+                nome: agendamento.profissional_nome,
+                especialidade: agendamento.especialidade,
+                registro: agendamento.crm
+            }
+        };
+        
+        res.json(resposta);
+        
+    } catch (error) {
+        console.error('Erro ao buscar detalhes do agendamento:', error);
+        res.status(500).json({ 
+            error: 'Erro interno do servidor' 
+        });
+    }
+});
+
+// Obter agendamentos do paciente
+router.get('/meus-agendamentos', AuthMiddleware.verificarToken, async (req, res) => {
     try {
         const pacienteId = req.usuario.id;
+
+        console.log('📅 Buscando agendamentos para paciente ID:', pacienteId);
         
         const sql = `
             SELECT 
@@ -196,11 +232,10 @@ router.get('/:id/detalhes', AuthMiddleware.verificarToken, async (req, res) => {
                 a.data_hora,
                 a.duracao_min,
                 a.status,
-                a.tipo_atendimento,
-                a.especialidade,
                 a.created_at,
                 
                 p.nome as profissional_nome,
+                p.especialidade,
                 p.crm,
                 p.telefone as profissional_telefone,
                 p.email as profissional_email
@@ -215,6 +250,8 @@ router.get('/:id/detalhes', AuthMiddleware.verificarToken, async (req, res) => {
         `;
         
         const agendamentos = await db.query(sql, [pacienteId]);
+
+        console.log(`✅ Encontrados ${agendamentos.length} agendamentos`);
         
         // Formata as datas
         const agendamentosFormatados = agendamentos.map(ag => ({
@@ -237,7 +274,7 @@ router.get('/:id/detalhes', AuthMiddleware.verificarToken, async (req, res) => {
 });
 
 // Cancelar agendamento
-router.put('/:id/cancelar', AuthMiddleware.verificarToken, AuthMiddleware.verificarPaciente, async (req, res) => {
+router.put('/:id/cancelar', AuthMiddleware.verificarToken, async (req, res) => {
     try {
         const agendamentoId = parseInt(req.params.id);
         const pacienteId = req.usuario.id;
@@ -285,7 +322,7 @@ router.put('/:id/cancelar', AuthMiddleware.verificarToken, AuthMiddleware.verifi
         
         await db.query(updateSql, [pacienteId, agendamentoId]);
 
-         res.json({ 
+        res.json({ 
             success: true, 
             message: 'Agendamento cancelado com sucesso' 
         });
@@ -295,49 +332,5 @@ router.put('/:id/cancelar', AuthMiddleware.verificarToken, AuthMiddleware.verifi
         res.status(500).json({ error: 'Erro interno do servidor' });
     }
 });
-        // Formata o endereço
-        const enderecoFormatado = agendamento.rua ? 
-            `${agendamento.rua}, ${agendamento.numero} - ${agendamento.bairro}\n${agendamento.cidade} - ${agendamento.estado}\nCEP: ${agendamento.cep}` :
-            'Endereço não cadastrado';
-        
-        const resposta = {
-            agendamento: {
-                id: agendamento.id_agendamento,
-                data_hora: agendamento.data_hora,
-                data_formatada: dataFormatada,
-                duracao_min: agendamento.duracao_min,
-                status: agendamento.status,
-                tipo_atendimento: agendamento.tipo_atendimento,
-                especialidade: agendamento.especialidade,
-                preco_consulta: agendamento.preco_consulta
-            },
-            paciente: {
-                nome: agendamento.paciente_nome,
-                cpf: agendamento.cpf,
-                email: agendamento.paciente_email,
-                telefone: agendamento.paciente_telefone,
-                data_nasc: agendamento.data_nasc,
-                estado_civil: agendamento.estado_civil,
-                endereco: enderecoFormatado
-            },
-            profissional: {
-                nome: agendamento.profissional_nome,
-                especialidade: agendamento.especialidade,
-                tipo_atendimento: agendamento.tipo_atendimento,
-                registro: agendamento.crm
-            }
-        };
-        
-        res.json(resposta);
-        
-    } catch (error) {
-        console.error('Erro ao buscar detalhes do agendamento:', error);
-        res.status(500).json({ 
-            error: 'Erro interno do servidor' 
-        });
-    }
 
-});
-
-// Exporta as rotas existentes também
 module.exports = router;

@@ -57,6 +57,7 @@ app.use('/api/especialidades', especialidadeRoutes);
 app.use('/api/tipos-atendimento', tipoAtendimentoRoutes);
 app.use('/api/agenda', agendaRoutes);
 
+
 // Middleware de tratamento de erros
 app.use(ApiMiddleware.tratarErros);
 

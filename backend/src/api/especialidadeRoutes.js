@@ -2,26 +2,17 @@ const express = require('express');
 const router = express.Router();
 const db = require('../db/database');
 
-// Obter especialidades por tipo de atendimento
+// Obter especialidades (todas)
 router.get('/', async (req, res) => {
     try {
-        const { tipo } = req.query;
-        
-        let sql = `
+        const sql = `
             SELECT DISTINCT especialidade 
             FROM profissional 
             WHERE deleted_at IS NULL
+            ORDER BY especialidade
         `;
-        const params = [];
         
-        if (tipo) {
-            sql += ' AND tipo_atendimento = ?';
-            params.push(tipo);
-        }
-        
-        sql += ' ORDER BY especialidade';
-        
-        const rows = await db.query(sql, params);
+        const rows = await db.query(sql);
         const especialidades = rows.map(row => row.especialidade);
         
         res.json(especialidades);
@@ -35,36 +26,26 @@ router.get('/', async (req, res) => {
 router.get('/:especialidade/profissionais', async (req, res) => {
     try {
         const { especialidade } = req.params;
-        const { tipo } = req.query;
         
-        let sql = `
+        const sql = `
             SELECT 
                 p.id_profissional,
                 p.nome,
                 p.especialidade,
                 p.crm,
                 p.telefone,
-                p.email,
-                COALESCE(p.preco_consulta, 0) as preco_consulta,
-                p.tipo_atendimento
+                p.email
             FROM profissional p
             JOIN usuario u ON p.id_profissional = u.id_usuario
             WHERE p.especialidade = ? 
                 AND u.ativo = TRUE 
                 AND p.deleted_at IS NULL
+            ORDER BY p.nome
         `;
-        const params = [especialidade];
         
-        if (tipo) {
-            sql += ' AND p.tipo_atendimento = ?';
-            params.push(tipo);
-        }
+        const profissionais = await db.query(sql, [especialidade]);
         
-        sql += ' ORDER BY p.nome';
-        
-        const profissionais = await db.query(sql, params);
-        
-        // Adicionar dias de trabalho de cada profissional
+        // Adicionar dias de trabalho
         for (let profissional of profissionais) {
             const diasSql = `
                 SELECT DISTINCT dia_semana 

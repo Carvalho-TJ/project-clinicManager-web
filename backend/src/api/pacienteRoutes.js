@@ -9,22 +9,34 @@ router.use(AuthMiddleware.verificarToken, AuthMiddleware.verificarPaciente);
 router.get('/me', async (req, res) => {
     try {
         const db = require('../db/database');
-        const pacienteId = req.usuario.sub;
+        const pacienteId = req.usuario.id;
         
+        console.log('🆔 ID do usuário do token:', pacienteId);
+        console.log('👤 Dados do req.usuario:', req.usuario);
+
         const sql = `
             SELECT id_paciente, nome, cpf, data_nasc, estado_civil, 
                    telefone, email, created_at
             FROM paciente 
             WHERE id_paciente = ? AND deleted_at IS NULL
         `;
-        
+        console.log('📋 Executando query:', sql, 'com ID:', pacienteId);
         const rows = await db.query(sql, [pacienteId]);
         
+        console.log('📊 Resultado da busca:', rows);
+
         if (rows.length === 0) {
+            console.log('❌ Nenhum paciente encontrado com ID:', pacienteId);
+            
+            const allPacientes = await db.query('SELECT id_paciente, nome FROM paciente LIMIT 10');
+            console.log('📋 Primeiros 10 pacientes:', allPacientes);
+            
             return res.status(404).json({ 
                 error: 'Paciente não encontrado' 
             });
         }
+
+        console.log('✅ Paciente encontrado:', rows[0]);
 
         res.json(rows[0]);
 
@@ -40,7 +52,7 @@ router.get('/me', async (req, res) => {
 router.put('/me', async (req, res) => {
     try {
         const db = require('../db/database');
-        const pacienteId = req.usuario.sub;
+        const pacienteId = req.usuario.id;
         const { nome, cpf, data_nasc, estado_civil, telefone, email } = req.body;
         
         if (!nome) {
@@ -97,7 +109,7 @@ router.put('/me', async (req, res) => {
 router.get('/enderecos', async (req, res) => {
     try {
         const db = require('../db/database');
-        const pacienteId = req.usuario.sub;
+        const pacienteId = req.usuario.id;
         
         const sql = `
             SELECT id_endereco, id_paciente, rua, bairro, numero, cep,
@@ -122,7 +134,7 @@ router.get('/enderecos', async (req, res) => {
 router.post('/enderecos', async (req, res) => {
     try {
         const db = require('../db/database');
-        const pacienteId = req.usuario.sub;
+        const pacienteId = req.usuario.id;
         const { rua, bairro, numero, cep, cidade, estado, complemento, tipo_endereco } = req.body;
         
         if (!rua) {
@@ -165,7 +177,7 @@ router.post('/enderecos', async (req, res) => {
 router.delete('/enderecos/:id', async (req, res) => {
     try {
         const db = require('../db/database');
-        const pacienteId = req.usuario.sub;
+        const pacienteId = req.usuario.id;
         const enderecoId = parseInt(req.params.id);
         
         const sql = `
