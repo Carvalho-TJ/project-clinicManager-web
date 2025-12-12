@@ -1,5 +1,5 @@
-// gerar-hash.js - Utilitário para hash de senhas
-import bcrypt from 'bcrypt';
+// utils/gerar-hash.js - CommonJS version
+const bcrypt = require('bcryptjs');
 
 class HashUtils {
     /**
@@ -39,8 +39,8 @@ class HashUtils {
 }
 
 // Executa teste se rodado diretamente
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (require.main === module) {
     HashUtils.test();
 }
 
-export default HashUtils;
+module.exports = HashUtils;

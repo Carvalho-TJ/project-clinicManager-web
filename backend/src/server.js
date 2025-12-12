@@ -2,7 +2,7 @@ const express = require('express');
 require('dotenv').config();
 
 // Importar middleware e rotas
-const ApiMiddleware = require('./middleware/api'); // Agora importa o objeto completo
+const ApiMiddleware = require('./middleware/api'); 
 const authRoutes = require('./api/authRoutes');
 const pacienteRoutes = require('./api/pacienteRoutes');
 const agendamentoRoutes = require('./api/agendamentoRoutes');
@@ -17,7 +17,7 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 
 // Configurar middleware
-app.use(ApiMiddleware.configurarCORS()); // Agora funciona!
+app.use(ApiMiddleware.configurarCORS()); 
 app.use(ApiMiddleware.configurarJSON(express));
 app.use(ApiMiddleware.configurarURLEncoded(express));
 

@@ -43,7 +43,7 @@ export const authAPI = {
     // Salva o token no localStorage após login
     if (token) {
       localStorage.setItem('token', token);
-      console.log('🔐 Token salvo no localStorage');
+      console.log('Token salvo no localStorage');
     }
 
     return response;
@@ -70,6 +70,7 @@ export const agendamentoAPI = {
   getMeusAgendamentos: () => api.get('/agendamentos/meus-agendamentos'),
   getDetalhesAgendamento: (id) => api.get(`/agendamentos/${id}/detalhes`),
   cancelarAgendamento: (id) => api.put(`/agendamentos/${id}/cancelar`),
+  getDetalhesAgendamento: (id) => api.get(`/agendamentos/${id}/detalhes`),
   
   // FLUXO DE AGENDAMENTO
   getEspecialidades: () => api.get('/especialidades'),
@@ -83,6 +84,7 @@ export const agendamentoAPI = {
   
   getHorariosDisponiveis: (profissionalId, data) => 
     api.get(`/agenda/profissional/${profissionalId}/horarios?data=${data}`)
+
 };
 
 export default api;

@@ -1,8 +1,25 @@
+const express = require('express');
+const router = express.Router();
+const db = require('../db/database');
+const HashUtils = require('../utils/gerar-hash');
+
+const verificarAdmin = (req, res, next) => { 
+  next();
+};
+
 // Criar novo profissional (apenas admin)
-adminRoutes.post('/', async (req, res) => {
+router.post('/', verificarAdmin, async (req, res) => {
   try {
-    const db = require('../db/database');
-    const HashUtils = require('../utils/gerar-hash');
+
+     console.log('📥 ========== CRIAR PROFISSIONAL ==========');
+    console.log('📥 Body recebido:', req.body);
+    
+    // Verifique cada campo
+    console.log('🔍 Campos obrigatórios:');
+    console.log('- nome:', req.body.nome);
+    console.log('- especialidade:', req.body.especialidade);
+    console.log('- login:', req.body.login);
+    console.log('- senha:', req.body.senha ? 'PRESENTE' : 'FALTANDO');
 
     const { 
       nome, 
@@ -115,3 +132,26 @@ adminRoutes.post('/', async (req, res) => {
     });
   }
 });
+
+router.get('/', async (req, res) => {
+  try {
+    const [profissionais] = await db.query(`
+      SELECT p.*, u.login, u.ativo
+      FROM profissional p
+      JOIN usuario u ON p.id_profissional = u.id_usuario
+      WHERE u.tipo = 'profissional'
+    `);
+    res.json(profissionais);
+  } catch (error) {
+    console.error(' ERRO DETALHADO:', error);
+    console.error(' Stack:', error.stack);
+    console.error('Erro ao buscar profissionais:', error);
+    res.status(500).json({ 
+      error: 'Erro interno do servidor ao criar profissional',
+      detalhes: error.message });
+  }
+
+});
+
+module.exports = router;
+

@@ -1,15 +1,13 @@
 const express = require('express');
 const router = express.Router();
-const bcrypt = require('bcryptjs'); // MUDAR PARA bcryptjs (mais compatível)
+const bcrypt = require('bcryptjs'); 
 
 const { Usuario, Paciente } = require('../db/models');
 const AuthMiddleware = require('../middleware/auth');
 
 // Login
-// Login - VERSÃO FINAL CORRIGIDA
 router.post('/login', async (req, res) => {
     try {
-        // ADICIONE ESTE LOG PARA VER O QUE CHEGA
         console.log('📥 ========== LOGIN REQUEST ==========');
         console.log('📥 Body:', JSON.stringify(req.body, null, 2));
         console.log('📥 Headers:', req.headers['content-type']);
@@ -23,8 +21,7 @@ router.post('/login', async (req, res) => {
             loginField: loginField,
             temSenha: !!senha
         });
-        
-        // CORREÇÃO AQUI: usar loginField em vez de login
+ 
         if (!loginField || !senha) {
             console.log('❌ FALHA: loginField ou senha vazios');
             return res.status(400).json({ 
@@ -33,8 +30,6 @@ router.post('/login', async (req, res) => {
         }
 
         console.log('🔍 Buscando usuário no banco...');
-        
-        // CORREÇÃO AQUI: buscar por loginField
         const usuario = await Usuario.findByLogin(loginField);
         
         console.log('👤 Resultado da busca:', usuario ? 'ENCONTRADO' : 'NÃO ENCONTRADO');
@@ -89,8 +84,8 @@ router.post('/login', async (req, res) => {
         });
 
     } catch (error) {
-        console.error('💥 ERRO NO LOGIN:', error);
-        console.error('💥 Stack:', error.stack);
+        console.error(' ERRO NO LOGIN:', error);
+        console.error(' Stack:', error.stack);
         res.status(500).json({ 
             error: 'Erro interno do servidor',
             detalhes: error.message 
@@ -128,7 +123,7 @@ router.post('/registrar-paciente', async (req, res) => {
             }
         }
 
-        // Hash da senha - USANDO BCRYPT DIRETAMENTE
+        // Hash da senha 
         const saltRounds = 10;
         const senhaHash = await bcrypt.hash(senha, saltRounds);
 
