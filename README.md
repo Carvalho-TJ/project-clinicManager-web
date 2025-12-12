@@ -67,6 +67,8 @@ Certifique-se de ter instalado em sua máquina:
 git clone https://github.com/Carvalho-TJ/project-clinicManager-web.git
 cd project-clinicManager-web```
 
+---
+
 ### ▶️ 3.Executando o Projeto
 
 Instale as dependências e execute o ambiente de desenvolvimento:
