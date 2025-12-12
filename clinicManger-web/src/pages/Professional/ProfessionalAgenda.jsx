@@ -1,4 +1,3 @@
-// src/pages/ProfessionalDashboard.jsx
 import React, { useState } from "react";
 import Logo from "../../assets/logo.png";
 import { useNavigate } from "react-router-dom";

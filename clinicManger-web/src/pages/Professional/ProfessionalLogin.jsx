@@ -7,7 +7,7 @@ export default function ProfessionalLogin() {
   const navigate = useNavigate();
   const { login } = useAuth();
 
-  // 🔹 Estados para os campos de login e senha
+  // Estados para os campos de login e senha
   const [loginField, setLoginField] = useState(""); 
   const [senha, setSenha] = useState("");
   const [error, setError] = useState("");

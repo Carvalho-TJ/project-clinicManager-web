@@ -5,7 +5,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'; // <-
 import MainLayout from './components/Layout/MainLayout';
 import AdminLogin from './pages/Auth/AdminLogin'; 
 import ProtectedRoute from './components/Auth/ProtectedRoute'; 
-import AdminDashboard from './pages/AdminPage/AdminDashboard'; 
+import AdminDashboard from './pages/AdminPage/AdminPage'; 
 import ProfessionalAgenda from './pages/Professional/ProfessionalAgenda';
 import PatientDashboard from './pages/Patient/PatientDashboard';
 import PublicLayout from './components/Layout/PublicLayout';
@@ -19,7 +19,6 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Rotas Públicas (Sem login necessário) */}
         <Route element={<PublicLayout />}>
              <Route path="/" element={<HomePage />} />
              <Route path="/sobre-nos" element={<SobrePage />} />
@@ -28,8 +27,7 @@ function App() {
         <Route path="/admin/login" element={<AdminLogin />} />
         <Route path="/prof/login" element={<ProfessionalLogin />} />
 
-        <Route element={<MainLayout />}>
-            
+        <Route element={<MainLayout />}>            
           <Route 
             path="/admin/dashboard" 
             element={<ProtectedRoute allowedRoles={['admin']}><AdminDashboard /></ProtectedRoute>} 
@@ -42,7 +40,6 @@ function App() {
             path="/patient/dashboard" 
             element={<ProtectedRoute allowedRoles={['patient']}><PatientDashboard /></ProtectedRoute>} 
           />
-          {/* <Route path="/" element={<Navigate to="/login" replace />} /> */}
           <Route 
             path="/agendar-consulta" 
             element={<ProtectedRoute allowedRoles={['patient']}><AgendarPage /></ProtectedRoute>} 
@@ -50,11 +47,8 @@ function App() {
           <Route 
             path="/prof/dashboard" 
             element={<ProtectedRoute allowedRoles={['professional']}><ProfessionalPatients /></ProtectedRoute>} 
-          />  
-             
-        </Route>    
-        {/* <Route path="/" element={<Navigate to="/login" replace />} />  */}
-        
+          />               
+        </Route>           
         <Route path="*" element={<h1>Página Não Encontrada (404)</h1>} />
       </Routes>
     </BrowserRouter>
