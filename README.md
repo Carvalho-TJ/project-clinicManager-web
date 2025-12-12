@@ -1,64 +1,81 @@
-# 🦷 ClinicManager - Frontend Administrativo
+# 🦷 ClinicManager – Painel Administrativo  
+Frontend de Administração da Clínica
 
-Este projeto é o frontend da interface de administração do sistema ClinicManager, desenvolvido para gerenciar pacientes, profissionais, prontuários eletrônicos e agendamentos de uma clínica médica. A aplicação foi construída com foco em usabilidade e design responsivo, utilizando React e a biblioteca Bootstrap.
+O **ClinicManager** é um sistema voltado para a gestão de clínicas médicas, permitindo o controle eficiente de pacientes, profissionais, prontuários eletrônicos e agendamentos.  
+Este repositório contém o **frontend administrativo**, desenvolvido com foco em usabilidade, produtividade e design responsivo.
 
 ---
 
 ## ✨ Funcionalidades Principais
 
-O painel administrativo oferece as seguintes funcionalidades de gerenciamento:
+O painel administrativo oferece uma experiência completa para gerenciamento clínico:
 
-* **Dashboard Estatístico:** Visualização rápida de métricas como total de pacientes e novos cadastros.
-* **Gerenciamento de Pacientes e Profissionais:**
-    * Listagem, busca e filtragem de pacientes e profissionais.
-    * Criação, edição e exclusão de cadastros.
-* **Prontuário Eletrônico:**
-    * Visualização detalhada do histórico de registros médicos de cada paciente.
-    * Formulário dedicado para adição de novos registros (diagnóstico, tratamento, observações e anexos).
-* **Modais de Ação:** Utilização de modais padronizados para criação, edição, exclusão e visualização de detalhes, otimizando o fluxo de trabalho.
+### 📊 **Dashboard Estatístico**
+- Métricas gerais (total de pacientes, novos cadastros, etc.)
+- Indicação visual de desempenho e atividade recente.
 
----
+### 👥 **Gestão de Pacientes e Profissionais**
+- Listagem com filtros e busca.
+- Criação, edição e exclusão de cadastros.
+- Visualização de dados fundamentais para atendimento clínico.
 
-## 🛠️ Tecnologias Utilizadas no Front-end
+### 📑 **Prontuário Eletrônico**
+- Acesso ao histórico de atendimentos e anotações médicas.
+- Formulário para registrar diagnósticos, tratamentos, observações e anexos.
 
-O projeto foi construído utilizando as seguintes tecnologias principais:
-
-| Categoria | Tecnologia | Descrição |
-| :--- | :--- | :--- |
-| **Framework** | **React** | Biblioteca JavaScript para a construção da interface do usuário. |
-| **Estilização** | **React-Bootstrap** | Componentes de UI responsivos e estilizados baseados no Bootstrap. |
-| **Linguagem** | **JavaScript (ES6+)** | Linguagem principal de desenvolvimento. |
-| **Ícones** | **React Icons (Bs)** | Conjunto de ícones vetoriais do Bootstrap (Bs) para ações e elementos visuais. |
+### 🪟 **Modais de Ação**
+- Fluxo de interação otimizado.
+- Utilização de modais padronizados para CRUD e visualização.
 
 ---
 
-## 🛠️ Tecnologias Utilizadas no Back-end
+## 🛠️ Tecnologias Utilizadas
 
-**Express**
+### 🎨 **Front-end**
+| Categoria      | Tecnologia                         | Descrição                                        |
+|----------------|------------------------------------|--------------------------------------------------|
+| Framework      | **React**                          | Biblioteca principal para construção da interface. |
+| UI/Estilização | **React-Bootstrap**                | Componentes visuais prontos e responsivos.       |
+| Linguagem      | **JavaScript (ES6+)**              | Base do desenvolvimento.                         |
+| Ícones         | **React Icons (Bootstrap Icons)**  | Ícones leves e consistentes para ações e elementos visuais. |
 
-**JWT**
+---
+
+### ⚙️ **Back-end**
+
+O backend do ClinicManager foi desenvolvido com foco em desempenho, segurança e integração simples com o frontend.  
+As principais tecnologias utilizadas são:
+
+| Tecnologia | Descrição |
+|-----------|-----------|
+| **Node.js** | Ambiente de execução JavaScript no servidor. |
+| **Express.js** | Framework leve para criação de rotas e APIs REST. |
+| **JWT (JSON Web Token)** | Autenticação e autorização de usuários de forma segura. |
+
+> O backend não está contido neste repositório, mas se comunica diretamente com este frontend.
 
 ---
 
 ## 🚀 Como Rodar o Projeto
 
-Siga os passos abaixo para clonar o repositório e iniciar a aplicação em seu ambiente local.
+### 🔧 1. Pré-requisitos
+Certifique-se de ter instalado em sua máquina:
+- **Node.js** (versão recomendada LTS)
+- **npm** ou **Yarn**
 
-### 1. Pré-requisitos
-
-Certifique-se de ter o **Node.js** e o **npm** (ou Yarn) instalados em sua máquina.
-
-### 2. Clonagem do Repositório
-
-Abra o terminal e utilize o comando `git clone` para copiar o projeto:
+### 📥 2. Clonando o Repositório
 
 ```bash
 git clone https://github.com/Carvalho-TJ/project-clinicManager-web.git
 cd project-clinicManager-web
 
----
+### ▶️ 3.Executando o Projeto
 
-### 3. Comando para Rodar o Projeto
+Instale as dependências e execute o ambiente de desenvolvimento:
 
-```bash
+npm install
 npm run dev
+
+A aplicação será iniciada em modo de desenvolvimento, normalmente disponível em:
+
+http://localhost:5173
