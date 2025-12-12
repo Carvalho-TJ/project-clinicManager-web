@@ -35,6 +35,7 @@ O projeto foi construído utilizando as seguintes tecnologias principais:
 ## 🛠️ Tecnologias Utilizadas no Back-end
 
 **Express**
+
 **JWT**
 
 ---
@@ -55,7 +56,9 @@ Abra o terminal e utilize o comando `git clone` para copiar o projeto:
 git clone https://github.com/Carvalho-TJ/project-clinicManager-web.git
 cd project-clinicManager-web
 
+---
+
 ### 3. Comando para Rodar o Projeto
 
-```bastante
+```bash
 npm run dev
