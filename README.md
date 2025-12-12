@@ -65,16 +65,16 @@ Certifique-se de ter instalado em sua máquina:
 
 ```bash
 git clone https://github.com/Carvalho-TJ/project-clinicManager-web.git
-cd project-clinicManager-web
+cd project-clinicManager-web'''
 
----
+
 
 ### ▶️ 3.Executando o Projeto
 
 Instale as dependências e execute o ambiente de desenvolvimento:
 ```bash
 npm install
-npm run dev
+npm run dev'''
 
 A aplicação será iniciada em modo de desenvolvimento, normalmente disponível em:
 
