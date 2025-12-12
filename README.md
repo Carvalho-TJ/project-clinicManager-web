@@ -52,8 +52,6 @@ As principais tecnologias utilizadas são:
 | **Express.js** | Framework leve para criação de rotas e APIs REST. |
 | **JWT (JSON Web Token)** | Autenticação e autorização de usuários de forma segura. |
 
-> O backend não está contido neste repositório, mas se comunica diretamente com este frontend.
-
 ---
 
 ## 🚀 Como Rodar o Projeto
