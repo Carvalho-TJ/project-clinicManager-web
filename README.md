@@ -19,7 +19,7 @@ O painel administrativo oferece as seguintes funcionalidades de gerenciamento:
 
 ---
 
-## 🛠️ Tecnologias Utilizadas
+## 🛠️ Tecnologias Utilizadas no Front-end
 
 O projeto foi construído utilizando as seguintes tecnologias principais:
 
@@ -29,7 +29,13 @@ O projeto foi construído utilizando as seguintes tecnologias principais:
 | **Estilização** | **React-Bootstrap** | Componentes de UI responsivos e estilizados baseados no Bootstrap. |
 | **Linguagem** | **JavaScript (ES6+)** | Linguagem principal de desenvolvimento. |
 | **Ícones** | **React Icons (Bs)** | Conjunto de ícones vetoriais do Bootstrap (Bs) para ações e elementos visuais. |
-| **Mocks** | `useState`, `useMemo` | Utilizados para simular dados e persistência de estado em ambiente de desenvolvimento. |
+
+---
+
+## 🛠️ Tecnologias Utilizadas no Back-end
+
+**Express**
+**JWT**
 
 ---
 
@@ -48,3 +54,8 @@ Abra o terminal e utilize o comando `git clone` para copiar o projeto:
 ```bash
 git clone https://github.com/Carvalho-TJ/project-clinicManager-web.git
 cd project-clinicManager-web
+
+### 3. Comando para Rodar o Projeto
+
+```bastante
+npm run dev
